@@ -1592,3 +1592,7 @@ textarea:focus-visible {
         transition: none !important;
     }
 }
+/* Ocultar la ilustración decorativa anterior */
+.hero-visual {
+    display: none !important;
+}
