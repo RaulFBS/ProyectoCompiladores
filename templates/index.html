@@ -14,38 +14,22 @@
     <aside class="sidebar" id="sidebar">
       <a class="brand" href="#inicio" aria-label="TramaLab, inicio">
         <span class="brand-mark">T</span>
-        <span class="brand-copy">
-          <strong>TramaLab</strong>
-          <small>COMPILADOR LOGÍSTICO</small>
-        </span>
+        <span class="brand-copy"><strong>TramaLab</strong><small>COMPILADOR LOGÍSTICO</small></span>
       </a>
 
       <div class="sidebar-label">ESPACIO DE TRABAJO</div>
-
       <nav class="sidebar-nav" aria-label="Navegación principal">
-        <a href="#inicio" class="nav-item active" data-section="inicio">
-          <span class="nav-number">01</span><span>Inicio</span>
-        </a>
-        <a href="#entrada" class="nav-item" data-section="entrada">
-          <span class="nav-number">02</span><span>Editor de tramas</span>
-        </a>
-        <a href="#resultado" class="nav-item" data-section="resultado">
-          <span class="nav-number">03</span><span>Resultados</span>
-        </a>
-        <a href="#automatas" class="nav-item" data-section="automatas">
-          <span class="nav-number">04</span><span>Autómatas</span>
-        </a>
-        <a href="#gramatica" class="nav-item" data-section="gramatica">
-          <span class="nav-number">05</span><span>Gramática</span>
-        </a>
+        <a href="#inicio" class="nav-item active" data-section="inicio"><span class="nav-number">01</span><span>Inicio</span></a>
+        <a href="#entrada" class="nav-item" data-section="entrada"><span class="nav-number">02</span><span>Editor de tramas</span></a>
+        <a href="#resultado" class="nav-item" data-section="resultado"><span class="nav-number">03</span><span>Resultados</span></a>
+        {% if resultado %}<a href="#arbol" class="nav-item" data-section="arbol"><span class="nav-number">04</span><span>Árbol sintáctico</span></a>{% endif %}
+        <a href="#automatas" class="nav-item" data-section="automatas"><span class="nav-number">05</span><span>Autómatas</span></a>
+        <a href="#gramatica" class="nav-item" data-section="gramatica"><span class="nav-number">06</span><span>Gramática</span></a>
       </nav>
 
       <div class="sidebar-bottom">
         <span class="status-dot"></span>
-        <div>
-          <strong>TramaLab</strong>
-          <small>Python · Flask</small>
-        </div>
+        <div><strong>TramaLab</strong><small>Python · Flask</small></div>
         <span class="sidebar-version">v1.0</span>
       </div>
     </aside>
@@ -54,47 +38,21 @@
 
     <div class="main-layout">
       <header class="topbar">
-        <button
-          class="menu-toggle"
-          id="sidebarToggle"
-          type="button"
-          aria-label="Abrir menú"
-          aria-expanded="false"
-          aria-controls="sidebar"
-        >
+        <button class="menu-toggle" id="sidebarToggle" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="sidebar">
           <span></span><span></span><span></span>
         </button>
-
-        <div class="breadcrumb">
-          <span>PROYECTO</span>
-          <span class="slash">/</span>
-          <strong>ANALIZADOR DE TRAMAS</strong>
-        </div>
-
-        <div class="topbar-status">
-          <span class="status-dot"></span>
-          <span>Entorno de análisis</span>
-        </div>
+        <div class="breadcrumb"><span>PROYECTO</span><span class="slash">/</span><strong>ANALIZADOR DE TRAMAS</strong></div>
+        <div class="topbar-status"><span class="status-dot"></span><span>Entorno de análisis</span></div>
       </header>
 
       <main class="main-content">
-
         <section class="hero" id="inicio">
           <div class="hero-copy">
             <p class="eyebrow">LABORATORIO DE COMPILADORES</p>
             <h1>De la trama al <span>autómata.</span></h1>
-            <p class="hero-description">
-              Escribe o carga una trama operativa. El motor identifica
-              tokens, valida la gramática y presenta los modelos formales
-              de cada token.
-            </p>
-            <div class="hero-tags">
-              <span>Léxico</span>
-              <span>Sintaxis</span>
-              <span>Autómatas finitos</span>
-            </div>
+            <p class="hero-description">Escribe o carga una trama operativa. El motor identifica tokens, valida la gramática y presenta los modelos formales de cada token.</p>
+            <div class="hero-tags"><span>Léxico</span><span>Sintaxis</span><span>Autómatas finitos</span></div>
           </div>
-
           <div class="hero-aside" aria-hidden="true">
             <div class="hero-mark">TL</div>
             <div class="hero-aside-line"></div>
@@ -103,344 +61,111 @@
         </section>
 
         {% if error_formulario %}
-        <div class="alert alert-error">
-          <strong>No se pudo procesar la entrada.</strong>
-          <span>{{ error_formulario }}</span>
-        </div>
+        <div class="alert alert-error"><strong>No se pudo procesar la entrada.</strong><span>{{ error_formulario }}</span></div>
         {% endif %}
 
         <section class="section-block" id="entrada">
-          <div class="section-heading">
-            <div>
-              <span class="section-kicker">01 · ENTRADA</span>
-              <h2>Editor de tramas</h2>
-              <p>Escribe instrucciones o carga un archivo de texto.</p>
-            </div>
-            <span class="step-badge">EDITOR</span>
-          </div>
-
-          <form
-            class="panel editor-card"
-            action="{{ url_for('index') }}"
-            method="post"
-            enctype="multipart/form-data"
-            id="compilerForm"
-          >
-            <div class="editor-toolbar">
-              <div class="file-tab">
-                <span class="file-dot"></span>
-                <strong>trama_operativa.dsl</strong>
-                <span class="tab-muted">UTF-8</span>
-              </div>
-              <span class="language-label">
-                Lenguaje: <strong>TramaDSL</strong>
-              </span>
-            </div>
-
-            <div class="editor-body">
-              <div class="line-numbers" id="lineNumbers" aria-hidden="true">1</div>
-              <textarea
-                id="codigo"
-                name="codigo"
-                spellcheck="false"
-                autocomplete="off"
-                autocapitalize="off"
-                wrap="off"
-                aria-label="Código de la trama"
-                placeholder="Escribe las instrucciones de tu lenguaje..."
-              >{{ codigo }}</textarea>
-            </div>
-
-            <div class="editor-status">
-              <span>Editor de código</span>
-              <span id="lineCount">1 línea</span>
-            </div>
-
+          <div class="section-heading"><div><span class="section-kicker">01 · ENTRADA</span><h2>Editor de tramas</h2><p>Escribe instrucciones o carga un archivo de texto.</p></div><span class="step-badge">EDITOR</span></div>
+          <form class="panel editor-card" action="{{ url_for('index') }}" method="post" enctype="multipart/form-data" id="compilerForm">
+            <div class="editor-toolbar"><div class="file-tab"><span class="file-dot"></span><strong>trama_operativa.dsl</strong><span class="tab-muted">UTF-8</span></div><span class="language-label">Lenguaje: <strong>TramaDSL</strong></span></div>
+            <div class="editor-body"><div class="line-numbers" id="lineNumbers" aria-hidden="true">1</div><textarea id="codigo" name="codigo" spellcheck="false" autocomplete="off" autocapitalize="off" wrap="off" aria-label="Código de la trama" placeholder="Escribe las instrucciones de tu lenguaje...">{{ codigo }}</textarea></div>
+            <div class="editor-status"><span>Editor de código</span><span id="lineCount">1 línea</span></div>
             <div class="editor-tools">
-              <div class="upload-info">
-                <span class="upload-symbol">↑</span>
-                <div>
-                  <strong>Importar archivo</strong>
-                  <small id="fileLabel">TXT, LOG o DSL</small>
-                </div>
-              </div>
-
+              <div class="upload-info"><span class="upload-symbol">↑</span><div><strong>Importar archivo</strong><small id="fileLabel">TXT, LOG o DSL</small></div></div>
               <div class="upload-actions">
-                <input
-                  type="file"
-                  name="archivo"
-                  id="archivo"
-                  accept=".txt,.log,.dsl,text/plain"
-                  hidden
-                >
-                <label for="archivo" class="button button-outline">
-                  Seleccionar archivo
-                </label>
-                <button class="button button-light" id="cargarEjemplo" type="button">
-                  Restaurar ejemplo
-                </button>
-                <button class="button button-light" id="limpiarCodigo" type="button">
-                  Limpiar
-                </button>
+                <input type="file" name="archivo" id="archivo" accept=".txt,.log,.dsl,text/plain" hidden>
+                <label for="archivo" class="button button-outline">Seleccionar archivo</label>
+                <button class="button button-light" id="cargarEjemplo" type="button">Restaurar ejemplo</button>
+                <button class="button button-light" id="limpiarCodigo" type="button">Limpiar</button>
               </div>
             </div>
-
-            <div class="editor-footer">
-              <p>
-                Termina cada instrucción con punto y coma. Si seleccionas
-                un archivo, se analizará su contenido.
-              </p>
-              <button class="button button-primary" id="analizarButton" type="submit">
-                Analizar trama <span aria-hidden="true">→</span>
-              </button>
-            </div>
+            <div class="editor-footer"><p>Termina cada instrucción con punto y coma. Si seleccionas un archivo, se analizará su contenido.</p><button class="button button-primary" id="analizarButton" type="submit">Analizar trama <span aria-hidden="true">→</span></button></div>
           </form>
         </section>
 
         <section class="section-block" id="resultado">
-          <div class="section-heading">
-            <div>
-              <span class="section-kicker">02 · RESULTADO</span>
-              <h2>Resumen de ejecución</h2>
-              <p>Tokens, sentencias y errores encontrados en la trama.</p>
-            </div>
-            {% if resultado %}
-              {% if resultado.valido %}
-              <span class="result-pill success">Trama válida</span>
-              {% else %}
-              <span class="result-pill danger">Requiere revisión</span>
-              {% endif %}
-            {% else %}
-              <span class="step-badge">ESPERANDO ANÁLISIS</span>
-            {% endif %}
+          <div class="section-heading"><div><span class="section-kicker">02 · RESULTADO</span><h2>Resumen de ejecución</h2><p>Tokens, sentencias y errores encontrados en la trama.</p></div>
+            {% if resultado %}{% if resultado.valido %}<span class="result-pill success">Trama válida</span>{% else %}<span class="result-pill danger">Requiere revisión</span>{% endif %}{% else %}<span class="step-badge">ESPERANDO ANÁLISIS</span>{% endif %}
           </div>
 
           {% if resultado %}
           <div class="metrics-grid">
-            <article class="metric-card">
-              <span class="metric-label">TOKENS</span>
-              <strong>{{ resultado.resumen.cantidad_tokens }}</strong>
-              <small>Elementos reconocidos</small>
-            </article>
-            <article class="metric-card">
-              <span class="metric-label">INSTRUCCIONES</span>
-              <strong>{{ resultado.resumen.cantidad_sentencias }}</strong>
-              <small>Sentencias identificadas</small>
-            </article>
-            <article class="metric-card">
-              <span class="metric-label">ERRORES</span>
-              <strong class="{% if resultado.resumen.cantidad_errores %}text-danger{% else %}text-success{% endif %}">
-                {{ resultado.resumen.cantidad_errores }}
-              </strong>
-              <small>Léxicos, sintácticos y semánticos</small>
-            </article>
+            <article class="metric-card"><span class="metric-label">TOKENS</span><strong>{{ resultado.resumen.cantidad_tokens }}</strong><small>Elementos reconocidos</small></article>
+            <article class="metric-card"><span class="metric-label">INSTRUCCIONES</span><strong>{{ resultado.resumen.cantidad_sentencias }}</strong><small>Sentencias identificadas</small></article>
+            <article class="metric-card"><span class="metric-label">ERRORES</span><strong class="{% if resultado.resumen.cantidad_errores %}text-danger{% else %}text-success{% endif %}">{{ resultado.resumen.cantidad_errores }}</strong><small>Léxicos, sintácticos y semánticos</small></article>
           </div>
 
           <div class="panel result-panel" id="tokens">
-            <div class="panel-heading">
-              <div>
-                <h3>Tokens y lexemas</h3>
-                <p>Componentes reconocidos en el código fuente.</p>
-              </div>
-              <span class="count-label">{{ resultado.tokens|length }} encontrados</span>
-            </div>
-
-            <div class="table-scroll">
-              <table>
-                <thead>
-                  <tr>
-                    <th>TIPO DE TOKEN</th>
-                    <th>LEXEMA</th>
-                    <th>LÍNEA</th>
-                    <th>COLUMNA</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for token in resultado.tokens %}
-                  <tr>
-                    <td><span class="token-tag">{{ token.tipo }}</span></td>
-                    <td class="mono">{{ token.lexema }}</td>
-                    <td>{{ token.linea }}</td>
-                    <td>{{ token.columna }}</td>
-                  </tr>
-                  {% else %}
-                  <tr>
-                    <td colspan="4" class="empty-cell">No se reconocieron tokens.</td>
-                  </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-            </div>
+            <div class="panel-heading"><div><h3>Tokens y lexemas</h3><p>Componentes reconocidos en el código fuente.</p></div><span class="count-label">{{ resultado.tokens|length }} encontrados</span></div>
+            <div class="table-scroll"><table><thead><tr><th>TIPO DE TOKEN</th><th>LEXEMA</th><th>LÍNEA</th><th>COLUMNA</th></tr></thead><tbody>
+              {% for token in resultado.tokens %}<tr><td><span class="token-tag">{{ token.tipo }}</span></td><td class="mono">{{ token.lexema }}</td><td>{{ token.linea }}</td><td>{{ token.columna }}</td></tr>{% else %}<tr><td colspan="4" class="empty-cell">No se reconocieron tokens.</td></tr>{% endfor %}
+            </tbody></table></div>
           </div>
 
           <div class="diagnostic-grid">
-            {% for titulo, errores in [
-              ('Errores léxicos', resultado.errores_lexicos),
-              ('Errores sintácticos', resultado.errores_sintacticos),
-              ('Errores semánticos', resultado.errores_semanticos)
-            ] %}
-            <article class="panel diagnostic-card">
-              <h3>{{ titulo }} <span>{{ errores|length }}</span></h3>
-              {% if errores %}
-              <ul>
-                {% for err in errores %}
-                <li>
-                  <strong>
-                    Línea {{ err.linea }}{% if err.columna is defined %},
-                    columna {{ err.columna }}{% endif %}:
-                  </strong>
-                  {{ err.mensaje }}
-                </li>
-                {% endfor %}
-              </ul>
-              {% else %}
-              <p class="clean-message">Sin errores registrados.</p>
-              {% endif %}
-            </article>
+            {% for titulo, errores in [('Errores léxicos', resultado.errores_lexicos), ('Errores sintácticos', resultado.errores_sintacticos), ('Errores semánticos', resultado.errores_semanticos)] %}
+            <article class="panel diagnostic-card"><h3>{{ titulo }} <span>{{ errores|length }}</span></h3>{% if errores %}<ul>{% for err in errores %}<li><strong>Línea {{ err.linea }}{% if err.columna is defined %}, columna {{ err.columna }}{% endif %}:</strong> {{ err.mensaje }}</li>{% endfor %}</ul>{% else %}<p class="clean-message">Sin errores registrados.</p>{% endif %}</article>
             {% endfor %}
           </div>
 
-          <div class="report-row">
-            <div>
-              <strong>Reporte del análisis</strong>
-              <p>Descarga el resultado para documentar la ejecución.</p>
-            </div>
-            <form action="{{ url_for('reporte') }}" method="post">
-              <input type="hidden" name="codigo" value="{{ resultado.codigo }}">
-              <button class="button button-outline" type="submit">
-                Descargar PDF ↓
-              </button>
-            </form>
-          </div>
-
+          <div class="report-row"><div><strong>Reporte del análisis</strong><p>Descarga el resultado para documentar la ejecución.</p></div><form action="{{ url_for('reporte') }}" method="post"><input type="hidden" name="codigo" value="{{ resultado.codigo }}"><button class="button button-outline" type="submit">Descargar PDF ↓</button></form></div>
           {% else %}
-          <div class="panel empty-state">
-            <div class="empty-state-mark">TL</div>
-            <h3>Esperando una trama</h3>
-            <p>
-              Utiliza el editor de arriba y pulsa «Analizar trama»
-              para ver los resultados del compilador.
-            </p>
-          </div>
+          <div class="panel empty-state"><div class="empty-state-mark">TL</div><h3>Esperando una trama</h3><p>Utiliza el editor de arriba y pulsa «Analizar trama» para ver los resultados del compilador.</p></div>
           {% endif %}
         </section>
 
-        <section class="section-block" id="automatas">
+        {% if resultado %}
+        <section class="section-block" id="arbol">
           <div class="section-heading">
             <div>
-              <span class="section-kicker">03 · MODELO FORMAL</span>
-              <h2>Expresiones y autómatas</h2>
-              <p>
-                Selecciona un token para inspeccionar su expresión
-                regular y sus autómatas.
-              </p>
+              <span class="section-kicker">03 · ANÁLISIS SINTÁCTICO</span>
+              <h2>Árbol de sintaxis abstracta</h2>
+              <p>Generado por el parser a partir de la trama que acabas de analizar.</p>
             </div>
-            <span class="step-badge">POR TOKEN</span>
+            <span class="step-badge">AST</span>
           </div>
+          <div class="panel ast-panel">
+            <div class="diagram-meta">
+              <strong>Estructura sintáctica de la entrada</strong>
+              <span>{{ resultado.sentencias|length }} sentencias reconocidas</span>
+            </div>
+            <div class="diagram-wrap">
+              <div id="astDiagram" class="mermaid diagram-canvas"></div>
+            </div>
+            <p class="ast-help">Cada rama representa una sentencia y sus componentes. Los nodos rojos indican errores léxicos, sintácticos o semánticos encontrados durante el análisis.</p>
+          </div>
+        </section>
+        <script id="ast-data" type="application/json">{{ resultado.ast_diagrama|tojson }}</script>
+        {% endif %}
 
+        <section class="section-block" id="automatas">
+          <div class="section-heading"><div><span class="section-kicker">04 · MODELO FORMAL</span><h2>Expresiones y autómatas</h2><p>Selecciona un token para inspeccionar su expresión regular y sus autómatas.</p></div><span class="step-badge">POR TOKEN</span></div>
           <div class="panel automata-card">
-            <div class="automata-controls">
-              <label for="tokenSelector">Token seleccionado</label>
-              <select id="tokenSelector">
-                {% for model in modelos %}
-                <option value="{{ model.token }}">{{ model.token }}</option>
-                {% endfor %}
-              </select>
-
-              <div class="regex-display">
-                <span>EXPRESIÓN REGULAR</span>
-                <code id="regexValue">—</code>
-              </div>
-            </div>
-
+            <div class="automata-controls"><label for="tokenSelector">Token seleccionado</label><select id="tokenSelector">{% for model in modelos %}<option value="{{ model.token }}">{{ model.token }}</option>{% endfor %}</select><div class="regex-display"><span>EXPRESIÓN REGULAR</span><code id="regexValue">—</code></div></div>
             <div class="automata-tabs" role="tablist" aria-label="Vistas del autómata">
-              <button class="tab-button active" data-tab="afnd" type="button" role="tab" aria-selected="true">
-                AFND
-              </button>
-              <button class="tab-button" data-tab="afd" type="button" role="tab" aria-selected="false">
-                AFD
-              </button>
-              <button class="tab-button" data-tab="tabla" type="button" role="tab" aria-selected="false">
-                Transiciones
-              </button>
-              <button class="tab-button" data-tab="quintupla" type="button" role="tab" aria-selected="false">
-                Quíntupla
-              </button>
+              <button class="tab-button active" data-tab="afnd" type="button" role="tab" aria-selected="true">AFND</button>
+              <button class="tab-button" data-tab="afd" type="button" role="tab" aria-selected="false">AFD</button>
+              <button class="tab-button" data-tab="tabla" type="button" role="tab" aria-selected="false">Transiciones</button>
+              <button class="tab-button" data-tab="quintupla" type="button" role="tab" aria-selected="false">Quíntupla</button>
             </div>
-
-            <div class="automata-panel" id="panel-afnd">
-              <div class="diagram-meta">
-                <strong>Autómata finito no determinista</strong>
-                <span id="afndCount"></span>
-              </div>
-              <div class="diagram-wrap">
-                <div id="afndDiagram" class="mermaid diagram-canvas"></div>
-              </div>
-            </div>
-
-            <div class="automata-panel hidden" id="panel-afd" hidden>
-              <div class="diagram-meta">
-                <strong>Autómata finito determinista</strong>
-                <span id="afdCount"></span>
-              </div>
-              <div class="diagram-wrap">
-                <div id="afdDiagram" class="mermaid diagram-canvas"></div>
-              </div>
-            </div>
-
-            <div class="automata-panel hidden" id="panel-tabla" hidden>
-              <div class="diagram-meta">
-                <strong>Tabla de transiciones</strong>
-                <span>AFD</span>
-              </div>
-              <div class="table-scroll" id="transitionTable"></div>
-            </div>
-
-            <div class="automata-panel hidden" id="panel-quintupla" hidden>
-              <div class="diagram-meta">
-                <strong>Quíntupla formal</strong>
-                <span>M = (Q, Σ, δ, q₀, F)</span>
-              </div>
-              <div class="quintuple-grid" id="quintupleContent"></div>
-            </div>
+            <div class="automata-panel" id="panel-afnd"><div class="diagram-meta"><strong>Autómata finito no determinista</strong><span id="afndCount"></span></div><div class="diagram-wrap"><div id="afndDiagram" class="mermaid diagram-canvas"></div></div></div>
+            <div class="automata-panel hidden" id="panel-afd" hidden><div class="diagram-meta"><strong>Autómata finito determinista</strong><span id="afdCount"></span></div><div class="diagram-wrap"><div id="afdDiagram" class="mermaid diagram-canvas"></div></div></div>
+            <div class="automata-panel hidden" id="panel-tabla" hidden><div class="diagram-meta"><strong>Tabla de transiciones</strong><span>AFD</span></div><div class="table-scroll" id="transitionTable"></div></div>
+            <div class="automata-panel hidden" id="panel-quintupla" hidden><div class="diagram-meta"><strong>Quíntupla formal</strong><span>M = (Q, Σ, δ, q₀, F)</span></div><div class="quintuple-grid" id="quintupleContent"></div></div>
           </div>
         </section>
 
         <section class="section-block" id="gramatica">
-          <div class="section-heading">
-            <div>
-              <span class="section-kicker">04 · GRAMÁTICA</span>
-              <h2>Gramática base de TramaDSL</h2>
-              <p>Producciones de referencia para las instrucciones logísticas.</p>
-            </div>
-            <span class="step-badge">GLC</span>
-          </div>
-
-          <div class="panel grammar-card">
-            <div class="grammar-card-heading">
-              <strong>Producciones de ejemplo</strong>
-              <span>Una instrucción por línea</span>
-            </div>
-            <pre><code>programa            → sentencia*
+          <div class="section-heading"><div><span class="section-kicker">04 · GRAMÁTICA</span><h2>Gramática base de TramaDSL</h2><p>Producciones de referencia para las instrucciones logísticas.</p></div><span class="step-badge">GLC</span></div>
+          <div class="panel grammar-card"><div class="grammar-card-heading"><strong>Producciones de ejemplo</strong><span>Una instrucción por línea</span></div><pre><code>programa            → sentencia*
 sentencia           → INICIAR_TURNO IDENTIFICADOR ;
                     | REGISTRAR NUMERO ;
                     | DETENER_MAQUINA IDENTIFICADOR ;
                     | REPORTAR_MERMA NUMERO ;
-                    | CAMBIAR_LOTE IDENTIFICADOR ;</code></pre>
-            <p>
-              Esta gramática es la base académica del prototipo y puede
-              ampliarse conforme se definan nuevas instrucciones y reglas
-              del dominio.
-            </p>
-          </div>
+                    | CAMBIAR_LOTE IDENTIFICADOR ;</code></pre><p>Esta gramática es la base académica del prototipo y puede ampliarse conforme se definan nuevas instrucciones y reglas del dominio.</p></div>
         </section>
 
-        <footer class="page-footer">
-          <span><strong>TRAMALAB</strong> · PROYECTO DE COMPILADORES</span>
-          <span>Python + Flask</span>
-          <a href="#inicio">Volver arriba ↑</a>
-        </footer>
-
+        <footer class="page-footer"><span><strong>TRAMALAB</strong> · PROYECTO DE COMPILADORES</span><span>Python + Flask</span><a href="#inicio">Volver arriba ↑</a></footer>
       </main>
     </div>
   </div>

@@ -1,4 +1,4 @@
-"""Genera los modelos formales y las fuentes Mermaid para cada token."""
+"""Genera modelos ER/AFND/AFD, tablas, quíntuplas y diagramas."""
 from .lexer import TOKEN_SPECS
 from .afnd import construir_afnd, afnd_a_mermaid
 from .afd import construir_afd, afd_a_mermaid, quintupla
@@ -24,5 +24,10 @@ def construir_modelos_tokens() -> list[dict]:
             "afnd_final": f"N{afnd.accept}",
             "afd_inicial": f"D{afd.start}",
             "afd_finales": [f"D{state}" for state in sorted(afd.finals)],
+            "afd_sumidero": f"D{afd.sink_state}" if afd.sink_state is not None else None,
+            "afd_transiciones_completas": all(
+                set(afd.alphabet).issubset(afd.transitions.get(state, {}))
+                for state in range(len(afd.states))
+            ),
         })
     return modelos

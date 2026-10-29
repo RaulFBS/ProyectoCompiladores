@@ -9,7 +9,7 @@ from motor.compilador import analizar_fuente
 from motor.modelos_automatas import construir_modelos_tokens
 from motor.reportes import generar_pdf
 
-app = Flask(__name__, static_folder=None)
+app = Flask(__name__, static_folder="public", static_url_path="")
 app.config["MAX_CONTENT_LENGTH"] = 1 * 1024 * 1024  # 1 MB por solicitud
 ALLOWED_EXTENSIONS = {"txt", "log", "dsl"}
 
