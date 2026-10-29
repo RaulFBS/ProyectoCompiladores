@@ -7,25 +7,31 @@ const codeEditor = document.getElementById('codigo');
 const lineNumbers = document.getElementById('lineNumbers');
 
 mermaid.initialize({
-    startOnLoad: false,
-    theme: "base",
-    securityLevel: "strict",
+  startOnLoad: false,
+  theme: 'base',
+  securityLevel: 'strict',
 
-    flowchart: {
-        curve: "linear",
-        htmlLabels: false
-    },
+  flowchart: {
+    curve: 'linear',
+    htmlLabels: true,
+    nodeSpacing: 34,
+    rankSpacing: 46
+  },
 
-    themeVariables: {
-        background: "#ffffff",
-        primaryColor: "#edf3f8",
-        primaryTextColor: "#253246",
-        primaryBorderColor: "#7893ad",
-        lineColor: "#718096",
-        secondaryColor: "#f8fafc",
-        tertiaryColor: "#ffffff",
-        fontFamily: "Segoe UI, Arial, sans-serif"
-    }
+  themeVariables: {
+    background: '#ffffff',
+
+    primaryColor: '#fff6f6',
+    primaryTextColor: '#191919',
+    primaryBorderColor: '#b4232f',
+
+    lineColor: '#555555',
+
+    secondaryColor: '#f5f5f5',
+    tertiaryColor: '#ffffff',
+
+    edgeLabelBackground: '#ffffff'
+  }
 });
 
 function getSelectedModel() {

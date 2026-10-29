@@ -1539,3 +1539,479 @@ td code {
         transition: none !important;
     }
 }
+/* ==========================================
+   TRAMALAB — DISEÑO FORMAL
+   Paleta: negro, blanco y rojo
+========================================== */
+
+:root {
+    --background: #f5f5f5;
+    --surface: #ffffff;
+    --surface-secondary: #fafafa;
+
+    --text: #191919;
+    --text-secondary: #626262;
+    --text-muted: #858585;
+
+    --primary: #b4232f;
+    --primary-hover: #941c26;
+    --primary-light: #f9eeee;
+
+    --border: #e2e2e2;
+    --border-strong: #cecece;
+
+    --success: #356b4b;
+    --danger: #a9232d;
+
+    --radius: 8px;
+}
+
+/* Fondo general */
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background: var(--background) !important;
+    color: var(--text) !important;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+/* Encabezado */
+
+header,
+.topbar,
+.site-header {
+    background: #151515 !important;
+    color: #ffffff !important;
+    border-bottom: 2px solid var(--primary);
+    box-shadow: none !important;
+}
+
+header a,
+.topbar a,
+.site-header a {
+    color: #f5f5f5;
+}
+
+header a:hover,
+.topbar a:hover,
+.site-header a:hover {
+    color: #e5a2a7;
+}
+
+/* Identidad de TramaLab */
+
+.brand-name,
+.logo,
+.brand {
+    letter-spacing: normal;
+}
+
+.brand-icon,
+.logo-icon {
+    background: var(--primary) !important;
+    color: #ffffff !important;
+    box-shadow: none !important;
+}
+
+/* Presentación principal */
+
+.hero,
+.hero-section,
+.hero-banner {
+    background: #ffffff !important;
+    color: var(--text) !important;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: none !important;
+}
+
+.hero h1,
+.hero-section h1,
+.hero-banner h1 {
+    color: #171717;
+    letter-spacing: -0.7px;
+}
+
+.gradient-text {
+    color: var(--primary) !important;
+    background: none !important;
+    -webkit-text-fill-color: var(--primary) !important;
+}
+
+/* Evitar brillos y decoraciones excesivas */
+
+.decoration-circle {
+    border-color: #e8e8e8 !important;
+    box-shadow: none !important;
+}
+
+.code-card-decoration {
+    background: #fafafa !important;
+    border: 1px solid var(--border) !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+.decoration-line {
+    background: #dedede !important;
+}
+
+/* Tarjetas y secciones */
+
+.panel,
+.card,
+.metric-card,
+.summary-card,
+.result-panel,
+.editor-panel,
+.automata-card,
+.formal-panel,
+.upload-area,
+.empty-state {
+    background: var(--surface) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius);
+    box-shadow: none !important;
+}
+
+.metric-card:hover {
+    transform: none !important;
+    border-color: var(--border-strong) !important;
+}
+
+h1,
+h2,
+h3,
+h4,
+.section-heading h2,
+.section-heading h3 {
+    color: #202020;
+    letter-spacing: -0.2px;
+}
+
+p {
+    color: var(--text-secondary);
+}
+
+.section-kicker,
+.eyebrow {
+    color: var(--primary) !important;
+    letter-spacing: 1px;
+}
+
+/* Indicadores: un solo tono neutro */
+
+.metric-icon,
+.metric-icon.cyan,
+.metric-icon.violet,
+.metric-icon.green {
+    background: #f2f2f2 !important;
+    color: #363636 !important;
+    border: 1px solid #e5e5e5;
+}
+
+.hero-tags span {
+    background: #fafafa !important;
+    color: #555555 !important;
+    border-color: var(--border) !important;
+}
+
+/* Botones generales */
+
+button,
+.button,
+.btn {
+    border-radius: 5px;
+    box-shadow: none !important;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.button:hover,
+.btn:hover {
+    transform: none !important;
+}
+
+/* Botón principal */
+
+.button-primary,
+.btn-primary,
+button[type="submit"] {
+    background: var(--primary) !important;
+    color: #ffffff !important;
+    border: 1px solid var(--primary) !important;
+}
+
+.button-primary:hover,
+.btn-primary:hover,
+button[type="submit"]:hover {
+    background: var(--primary-hover) !important;
+}
+
+/* Botones secundarios */
+
+.button-secondary,
+.btn-secondary {
+    background: #ffffff !important;
+    color: #292929 !important;
+    border: 1px solid #d5d5d5 !important;
+}
+
+.button-secondary:hover,
+.btn-secondary:hover {
+    background: #f4f4f4 !important;
+}
+
+.button-ghost {
+    background: transparent !important;
+    color: #454545 !important;
+    border: 1px solid #dedede !important;
+}
+
+.button-ghost:hover {
+    background: #f4f4f4 !important;
+}
+
+/* Editor de código */
+
+.editor-toolbar {
+    background: #eeeeee !important;
+    border-color: var(--border) !important;
+}
+
+.editor-file-name {
+    color: #333333 !important;
+}
+
+.editor-body {
+    background: #ffffff !important;
+    border-color: var(--border) !important;
+}
+
+.line-numbers {
+    background: #f5f5f5 !important;
+    color: #929292 !important;
+    border-color: var(--border) !important;
+}
+
+#codigo,
+#code-editor,
+textarea {
+    background: #ffffff !important;
+    color: #242424 !important;
+    caret-color: var(--primary);
+}
+
+#codigo:focus,
+#code-editor:focus,
+textarea:focus {
+    outline: none;
+    box-shadow: inset 0 0 0 1px #d7b0b3;
+}
+
+.editor-footer {
+    background: #f7f7f7 !important;
+    border-color: var(--border) !important;
+}
+
+/* Selector de tokens y entradas */
+
+select,
+input[type="text"],
+input[type="file"],
+input[type="number"] {
+    color: #222222;
+    background: #ffffff;
+    border: 1px solid #d6d6d6;
+    border-radius: 5px;
+}
+
+select:focus,
+input:focus {
+    border-color: var(--primary);
+    outline: none;
+}
+
+/* Pestañas de AFND y AFD */
+
+.tab-button {
+    background: #f6f6f6;
+    color: #555555;
+    border: 1px solid #e1e1e1;
+    border-radius: 5px 5px 0 0;
+}
+
+.tab-button:hover {
+    color: var(--primary);
+    background: #ffffff;
+}
+
+.tab-button.active {
+    color: var(--primary) !important;
+    background: #ffffff !important;
+    border-color: #d8b4b7 !important;
+    border-bottom: 2px solid var(--primary) !important;
+}
+
+/* Mantener el comportamiento de las pestañas */
+
+.automata-panel.hidden,
+.hidden {
+    display: none !important;
+}
+
+/* Tablas de resultados y transiciones */
+
+table,
+.transitions-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffff;
+    font-size: 12px;
+}
+
+thead,
+.transitions-table thead {
+    background: #f1f1f1 !important;
+}
+
+th,
+.transitions-table th {
+    color: #333333 !important;
+    background: #f1f1f1 !important;
+    font-weight: 650;
+    border-bottom: 1px solid #dcdcdc;
+}
+
+td,
+.transitions-table td {
+    color: #444444;
+    border-bottom: 1px solid #ededed;
+}
+
+tbody tr:hover {
+    background: #fafafa;
+}
+
+.final-state {
+    color: var(--primary) !important;
+    background: #fbf1f2 !important;
+    font-weight: 700;
+}
+
+.no-transition {
+    color: #a0a0a0 !important;
+}
+
+/* Tokens y expresiones regulares */
+
+.token-badge {
+    color: #812029 !important;
+    background: #fbf1f2 !important;
+    border: 1px solid #ebd5d7 !important;
+    border-radius: 4px;
+}
+
+code,
+.regex-code {
+    color: #79252d;
+    font-family: Consolas, "Courier New", monospace;
+}
+
+/* Quíntupla */
+
+.quintuple-item,
+.formal-item {
+    background: #ffffff !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 6px;
+    box-shadow: none !important;
+}
+
+.quintuple-symbol,
+.formal-item > span {
+    color: var(--primary) !important;
+}
+
+.quintuple-item code,
+.formal-item code {
+    color: #333333 !important;
+    overflow-wrap: anywhere;
+}
+
+/* Diagramas */
+
+.graph-container,
+.automata-block,
+.automata-graph {
+    background: #ffffff !important;
+    border-color: var(--border) !important;
+}
+
+.graph-placeholder {
+    background: #fafafa !important;
+    color: #777777 !important;
+    border-color: var(--border) !important;
+}
+
+/* Estados del compilador */
+
+.badge-neutral {
+    color: #4c4c4c !important;
+    background: #f4f4f4 !important;
+    border: 1px solid #dddddd !important;
+}
+
+.badge-success {
+    color: var(--success) !important;
+    background: #f1f7f2 !important;
+    border-color: #d8e7db !important;
+}
+
+.badge-error {
+    color: var(--danger) !important;
+    background: #fbf0f1 !important;
+    border-color: #ecd5d7 !important;
+}
+
+.error-item {
+    background: #fcf7f7 !important;
+    border-color: #eadadb !important;
+    color: #85262e !important;
+}
+
+.error-symbol {
+    background: #f7e8e9 !important;
+    color: var(--primary) !important;
+}
+
+.alert-error {
+    background: #fcf5f5 !important;
+    color: #85262e !important;
+    border-color: #eadadb !important;
+}
+
+/* Pie de página */
+
+footer,
+.footer {
+    border-color: var(--border) !important;
+}
+
+.footer-brand,
+.footer-link:hover {
+    color: var(--primary) !important;
+}
+
+/* Responsive */
+
+@media (max-width: 680px) {
+    .hero-section,
+    .editor-panel,
+    .automata-card,
+    .formal-panel {
+        padding: 18px !important;
+    }
+}
