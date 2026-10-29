@@ -6,21 +6,26 @@ const selector = document.getElementById('tokenSelector');
 const codeEditor = document.getElementById('codigo');
 const lineNumbers = document.getElementById('lineNumbers');
 
-mermaid.initialize({
-  startOnLoad: false,
-  theme: 'dark',
-  securityLevel: 'strict',
-  flowchart: { curve: 'basis', htmlLabels: true, nodeSpacing: 34, rankSpacing: 46 },
-  themeVariables: {
-    background: '#101c2a',
-    primaryColor: '#17374a',
-    primaryTextColor: '#e7f4fa',
-    primaryBorderColor: '#43c9bd',
-    lineColor: '#51bdb4',
-    secondaryColor: '#182b3c',
-    tertiaryColor: '#10212f',
-    edgeLabelBackground: '#172535'
-  }
+window.mermaid.initialize({
+    startOnLoad: false,
+    theme: "base",
+    securityLevel: "strict",
+
+    flowchart: {
+        curve: "linear",
+        htmlLabels: false
+    },
+
+    themeVariables: {
+        background: "#ffffff",
+        primaryColor: "#edf3f8",
+        primaryTextColor: "#253246",
+        primaryBorderColor: "#7893ad",
+        lineColor: "#718096",
+        secondaryColor: "#f8fafc",
+        tertiaryColor: "#ffffff",
+        fontFamily: "Segoe UI, Arial, sans-serif"
+    }
 });
 
 function getSelectedModel() {
