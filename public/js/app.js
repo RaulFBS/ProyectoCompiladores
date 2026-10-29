@@ -73,56 +73,37 @@ const sidebarToggle = document.getElementById("sidebarToggle");
 const sidebarOverlay = document.getElementById("sidebarOverlay");
 
 function closeSidebar() {
-    if (!sidebar || !sidebarToggle || !sidebarOverlay) {
-        return;
-    }
-
-    sidebar.classList.remove("open");
-    sidebarOverlay.classList.remove("visible");
-
+    sidebar?.classList.remove("open");
+    sidebarOverlay?.classList.remove("visible");
     document.body.classList.remove("menu-open");
 
-    sidebarToggle.setAttribute("aria-expanded", "false");
-    sidebarToggle.setAttribute(
-        "aria-label",
-        "Abrir menú de navegación"
-    );
+    sidebarToggle?.setAttribute("aria-expanded", "false");
 }
 
 function toggleSidebar() {
-    if (!sidebar || !sidebarToggle || !sidebarOverlay) {
-        return;
-    }
+    if (!sidebar || !sidebarOverlay) return;
 
-    const isOpen = sidebar.classList.toggle("open");
+    const open = !sidebar.classList.contains("open");
 
-    sidebarOverlay.classList.toggle("visible", isOpen);
-    document.body.classList.toggle("menu-open", isOpen);
+    sidebar.classList.toggle("open", open);
+    sidebarOverlay.classList.toggle("visible", open);
+    document.body.classList.toggle("menu-open", open);
 
-    sidebarToggle.setAttribute("aria-expanded", String(isOpen));
-
-    sidebarToggle.setAttribute(
-        "aria-label",
-        isOpen
-            ? "Cerrar menú de navegación"
-            : "Abrir menú de navegación"
-    );
+    sidebarToggle?.setAttribute("aria-expanded", String(open));
 }
 
-if (sidebarToggle) {
-    sidebarToggle.addEventListener("click", toggleSidebar);
-}
-
-if (sidebarOverlay) {
-    sidebarOverlay.addEventListener("click", closeSidebar);
-}
+sidebarToggle?.addEventListener("click", toggleSidebar);
+sidebarOverlay?.addEventListener("click", closeSidebar);
 
 document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") {
+    if (event.key === "Escape") closeSidebar();
+});
+
+window.addEventListener("resize", () => {
+    if (window.innerWidth > 760) {
         closeSidebar();
     }
 });
-
 
 /* ==================================================
    4. NAVEGACIÓN ENTRE SECCIONES

@@ -1,35 +1,38 @@
-/* ==================================================
-   TRAMALAB — ESTILO FORMAL
-   Paleta: negro, blanco, gris y rojo oscuro
-================================================== */
+/* =====================================================
+   TRAMALAB | DISEÑO PROFESIONAL
+   Paleta: negro, blanco, gris y rojo vino
+===================================================== */
 
 :root {
-    --black: #171717;
-    --black-soft: #222222;
-    --red: #a62632;
-    --red-hover: #881d27;
-    --red-light: #f8eded;
+    --black: #181818;
+    --black-soft: #242424;
+    --red: #a52b36;
+    --red-hover: #89222c;
+    --red-soft: #f7ebed;
 
-    --background: #f5f5f5;
+    --background: #f4f5f7;
     --white: #ffffff;
     --gray-50: #fafafa;
-    --gray-100: #f3f3f3;
-    --gray-200: #e5e5e5;
-    --gray-300: #d4d4d4;
-    --gray-500: #737373;
-    --gray-700: #404040;
-    --gray-900: #202020;
+    --gray-100: #f2f3f5;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-500: #737783;
+    --gray-700: #41444d;
+    --gray-900: #202127;
 
-    --success: #3f6d50;
-    --danger: #a62632;
+    --success: #387451;
+    --danger: #a52b36;
 
-    --sidebar-width: 248px;
-    --topbar-height: 64px;
+    --sidebar-width: 250px;
+    --header-height: 66px;
     --radius: 9px;
-    --max-width: 1450px;
+    --content-width: 1500px;
 }
 
-/* 1. BASE */
+
+/* =====================================================
+   1. BASE
+===================================================== */
 
 * {
     box-sizing: border-box;
@@ -37,13 +40,14 @@
 
 html {
     scroll-behavior: smooth;
-    scroll-padding-top: calc(var(--topbar-height) + 22px);
+    scroll-padding-top: 90px;
 }
 
 body {
     margin: 0;
     background: var(--background);
     color: var(--gray-900);
+
     font-family: "Segoe UI", Arial, sans-serif;
     font-size: 13px;
     line-height: 1.65;
@@ -55,8 +59,8 @@ body.menu-open {
 
 button,
 input,
-select,
-textarea {
+textarea,
+select {
     font: inherit;
 }
 
@@ -65,7 +69,7 @@ button {
 }
 
 button:disabled {
-    opacity: 0.6;
+    opacity: 0.65;
     cursor: not-allowed;
 }
 
@@ -74,28 +78,38 @@ a {
     text-decoration: none;
 }
 
+img,
+svg {
+    max-width: 100%;
+}
+
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,
-select:focus-visible,
-textarea:focus-visible {
-    outline: 2px solid #c66b73;
+textarea:focus-visible,
+select:focus-visible {
+    outline: 2px solid #bf6a73;
     outline-offset: 3px;
 }
 
 ::selection {
-    background: #efd6d8;
-    color: #171717;
+    background: #ecd1d4;
+    color: var(--black);
 }
 
 
-/* 2. DISTRIBUCIÓN GENERAL */
+/* =====================================================
+   2. DISTRIBUCIÓN PRINCIPAL
+   El menú ocupa 250px y el contenido empieza después.
+===================================================== */
 
 .app-layout {
     min-height: 100vh;
+    width: 100%;
 }
 
 .main-layout {
+    width: calc(100% - var(--sidebar-width));
     min-width: 0;
     min-height: 100vh;
     margin-left: var(--sidebar-width);
@@ -103,27 +117,31 @@ textarea:focus-visible {
 
 .main-content {
     width: 100%;
-    max-width: calc(var(--max-width) + 60px);
+    max-width: var(--content-width);
     margin: 0 auto;
-    padding: 34px 38px 0;
+    padding: 34px clamp(20px, 3vw, 42px) 0;
 }
 
 .content-section {
-    scroll-margin-top: calc(var(--topbar-height) + 22px);
+    min-width: 0;
+    margin-top: 38px;
+    scroll-margin-top: calc(var(--header-height) + 22px);
 }
 
 
-/* 3. MENÚ LATERAL */
+/* =====================================================
+   3. MENÚ LATERAL DE ESCRITORIO
+   No se superpone con el contenido principal.
+===================================================== */
 
 .sidebar {
     position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
+    inset: 0 auto 0 0;
     z-index: 300;
 
     width: var(--sidebar-width);
-    padding: 26px 17px 18px;
+    height: 100vh;
+    padding: 25px 17px 18px;
 
     display: flex;
     flex-direction: column;
@@ -131,9 +149,13 @@ textarea:focus-visible {
     overflow-x: hidden;
     overflow-y: auto;
 
-    color: #f5f5f5;
     background: var(--black);
-    border-right: 1px solid #303030;
+    color: #f5f5f5;
+    border-right: 1px solid #333333;
+
+    /* En escritorio el menú permanece en su columna. */
+    transform: none;
+    transition: transform 0.22s ease;
 }
 
 .brand {
@@ -141,7 +163,7 @@ textarea:focus-visible {
     align-items: center;
     gap: 12px;
 
-    padding: 0 8px 23px;
+    padding: 0 8px 24px;
 }
 
 .brand-mark {
@@ -152,9 +174,9 @@ textarea:focus-visible {
     display: grid;
     place-items: center;
 
+    border-radius: 8px;
     background: var(--red);
     color: #ffffff;
-    border-radius: 7px;
 
     font-size: 22px;
     font-weight: 800;
@@ -163,7 +185,7 @@ textarea:focus-visible {
 .brand-copy {
     display: flex;
     flex-direction: column;
-    line-height: 1.45;
+    line-height: 1.4;
 }
 
 .brand-copy strong {
@@ -174,28 +196,29 @@ textarea:focus-visible {
 }
 
 .brand-copy small {
-    margin-top: 3px;
+    margin-top: 4px;
+
     color: #a1a1a1;
     font-size: 8px;
     font-weight: 650;
-    letter-spacing: 1.15px;
+    letter-spacing: 1px;
 }
 
 .sidebar-divider {
     height: 1px;
     flex-shrink: 0;
-    background: #333333;
-    margin-bottom: 24px;
+    margin-bottom: 25px;
+    background: #343434;
 }
 
 .sidebar-heading {
+    margin: 0 0 12px;
     padding: 0 10px;
-    margin: 0 0 11px;
 
-    color: #858585;
+    color: #888888;
     font-size: 9px;
     font-weight: 750;
-    letter-spacing: 1.25px;
+    letter-spacing: 1.2px;
 }
 
 .sidebar-nav {
@@ -207,7 +230,7 @@ textarea:focus-visible {
 .side-link {
     position: relative;
 
-    min-height: 45px;
+    min-height: 44px;
     padding: 10px 12px;
 
     display: flex;
@@ -215,24 +238,23 @@ textarea:focus-visible {
     gap: 13px;
 
     border-radius: 6px;
+    background: transparent;
 
-    color: #c0c0c0;
+    color: #c2c2c2;
     font-size: 12px;
     font-weight: 500;
 
-    transition:
-        background 0.15s ease,
-        color 0.15s ease;
+    transition: background 0.15s ease, color 0.15s ease;
 }
 
 .side-link:hover {
-    color: #ffffff;
     background: #292929;
+    color: #ffffff;
 }
 
 .side-link.active {
+    background: #302527;
     color: #ffffff;
-    background: #302426;
 }
 
 .side-link.active::before {
@@ -242,9 +264,9 @@ textarea:focus-visible {
     left: 0;
 
     width: 3px;
-    border-radius: 3px;
 
-    background: #cf7079;
+    background: #cb717b;
+    border-radius: 3px;
     content: "";
 }
 
@@ -252,18 +274,18 @@ textarea:focus-visible {
     width: 23px;
     flex-shrink: 0;
 
-    color: #858585;
+    color: #818181;
     font-family: Consolas, "Courier New", monospace;
     font-size: 10px;
 }
 
 .side-link.active .side-number {
-    color: #e7a4aa;
+    color: #e4a1a7;
 }
 
 .sidebar-bottom {
     margin-top: auto;
-    padding-top: 24px;
+    padding-top: 25px;
 }
 
 .sidebar-status {
@@ -273,10 +295,9 @@ textarea:focus-visible {
 
     padding: 13px 11px;
 
+    background: #222222;
     border: 1px solid #383838;
     border-radius: 7px;
-
-    background: #202020;
 }
 
 .status-dot {
@@ -285,7 +306,7 @@ textarea:focus-visible {
     flex-shrink: 0;
 
     border-radius: 50%;
-    background: #7b9b82;
+    background: #83a18a;
 }
 
 .sidebar-status div {
@@ -300,39 +321,45 @@ textarea:focus-visible {
 }
 
 .sidebar-status small {
-    color: #969696;
+    color: #999999;
     font-size: 10px;
 }
 
 .sidebar-version {
     margin: 13px 8px 0;
-    color: #858585;
+    color: #848484;
     font-size: 9px;
 }
+
+
+/* El fondo de superposición no debe existir en escritorio. */
 
 .sidebar-overlay {
     display: none;
 }
 
 
-/* 4. BARRA SUPERIOR */
+/* =====================================================
+   4. BARRA SUPERIOR
+===================================================== */
 
 .topbar {
     position: sticky;
     top: 0;
-    z-index: 200;
+    z-index: 100;
 
-    height: var(--topbar-height);
-    padding: 0 38px;
+    width: 100%;
+    height: var(--header-height);
+    padding: 0 clamp(20px, 3vw, 42px);
 
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 20px;
 
-    background: rgba(255, 255, 255, 0.96);
+    background: rgba(255, 255, 255, 0.97);
     border-bottom: 1px solid var(--gray-200);
-    backdrop-filter: blur(12px);
+    backdrop-filter: blur(10px);
 }
 
 .breadcrumb {
@@ -350,13 +377,13 @@ textarea:focus-visible {
 }
 
 .breadcrumb-separator {
-    color: #c4c4c4;
+    color: #c7c7c7;
 }
 
 .topbar-right {
     display: flex;
     align-items: center;
-    gap: 9px;
+    gap: 8px;
 
     color: var(--gray-500);
     font-size: 10px;
@@ -370,60 +397,62 @@ textarea:focus-visible {
 }
 
 .menu-toggle {
+    display: none;
     width: 36px;
     height: 36px;
     padding: 8px;
 
-    display: none;
     flex-direction: column;
     justify-content: center;
     gap: 4px;
 
     color: var(--black);
     background: #ffffff;
-
     border: 1px solid var(--gray-200);
     border-radius: 6px;
 }
 
 .menu-toggle span {
-    display: block;
     width: 17px;
     height: 2px;
+    display: block;
+
     background: currentColor;
     border-radius: 2px;
 }
 
 
-/* 5. ENCABEZADO DE PÁGINA */
+/* =====================================================
+   5. ENCABEZADO PRINCIPAL
+===================================================== */
 
 .page-intro {
-    margin-bottom: 36px;
-    padding: 7px 0 26px;
-
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 24px;
+    gap: 25px;
+
+    margin-bottom: 34px;
+    padding: 4px 0 26px;
 
     border-bottom: 1px solid var(--gray-200);
-    scroll-margin-top: calc(var(--topbar-height) + 18px);
+    scroll-margin-top: 90px;
 }
 
 .eyebrow {
-    margin: 0 0 11px;
+    margin: 0 0 10px;
 
     color: var(--red);
     font-size: 9px;
     font-weight: 750;
-    letter-spacing: 1.35px;
+    letter-spacing: 1.2px;
 }
 
 .page-intro h1 {
     margin: 0;
 
     color: var(--black);
-    font-size: clamp(27px, 3vw, 37px);
+    font-size: clamp(27px, 3vw, 38px);
     font-weight: 750;
     letter-spacing: -1.1px;
     line-height: 1.25;
@@ -434,8 +463,8 @@ textarea:focus-visible {
 }
 
 .intro-description {
-    max-width: 650px;
-    margin: 13px 0 0;
+    max-width: 680px;
+    margin: 12px 0 0;
 
     color: var(--gray-500);
     font-size: 12px;
@@ -443,29 +472,29 @@ textarea:focus-visible {
 }
 
 .project-label {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-
-    min-width: 210px;
+    min-width: 205px;
     padding: 13px;
 
+    display: flex;
+    align-items: center;
+    gap: 11px;
+
     border: 1px solid var(--gray-200);
-    background: #ffffff;
     border-radius: 7px;
+    background: #ffffff;
 }
 
 .project-label-mark {
-    width: 35px;
-    height: 35px;
+    width: 37px;
+    height: 37px;
     flex-shrink: 0;
 
     display: grid;
     place-items: center;
 
-    background: var(--red-light);
+    background: var(--red-soft);
     color: var(--red);
-    border-radius: 5px;
+    border-radius: 6px;
 
     font-size: 11px;
     font-weight: 800;
@@ -488,11 +517,9 @@ textarea:focus-visible {
 }
 
 
-/* 6. SECCIONES */
-
-.content-section {
-    margin-top: 37px;
-}
+/* =====================================================
+   6. TÍTULOS DE SECCIÓN
+===================================================== */
 
 .section-title {
     display: flex;
@@ -507,11 +534,11 @@ textarea:focus-visible {
     color: var(--red);
     font-size: 9px;
     font-weight: 750;
-    letter-spacing: 1.05px;
+    letter-spacing: 1px;
 }
 
 .section-title h2 {
-    margin: 5px 0 4px;
+    margin: 5px 0;
 
     color: var(--black);
     font-size: 20px;
@@ -529,16 +556,15 @@ textarea:focus-visible {
 }
 
 .subtle-badge {
+    padding: 5px 9px;
+
     display: inline-flex;
     align-items: center;
 
-    padding: 5px 9px;
-
+    color: var(--gray-500);
+    background: #ffffff;
     border: 1px solid var(--gray-200);
     border-radius: 4px;
-
-    background: #ffffff;
-    color: var(--gray-500);
 
     font-size: 9px;
     font-weight: 650;
@@ -546,7 +572,9 @@ textarea:focus-visible {
 }
 
 
-/* 7. TARJETAS Y ESPACIOS DE TRABAJO */
+/* =====================================================
+   7. TARJETAS GENERALES
+===================================================== */
 
 .workspace-card {
     min-width: 0;
@@ -556,7 +584,7 @@ textarea:focus-visible {
     border: 1px solid var(--gray-200);
     border-radius: var(--radius);
 
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.015);
+    box-shadow: 0 2px 7px rgba(0, 0, 0, 0.018);
 }
 
 .workspace-card > form {
@@ -564,7 +592,9 @@ textarea:focus-visible {
 }
 
 
-/* 8. EDITOR */
+/* =====================================================
+   8. EDITOR DE CÓDIGO
+===================================================== */
 
 .editor-toolbar {
     min-height: 49px;
@@ -604,6 +634,7 @@ textarea:focus-visible {
 
 .editor-container {
     min-height: 245px;
+
     display: flex;
     align-items: stretch;
 
@@ -616,23 +647,23 @@ textarea:focus-visible {
 
     overflow: hidden;
 
-    border-right: 1px solid var(--gray-200);
-    background: #fafafa;
-
     color: #a0a0a0;
-    text-align: right;
-    user-select: none;
-    white-space: pre;
+    background: #fafafa;
+    border-right: 1px solid var(--gray-200);
 
     font-family: Consolas, "Courier New", monospace;
     font-size: 12px;
     line-height: 2;
+    text-align: right;
+    white-space: pre;
+    user-select: none;
 }
 
 #codigo {
     display: block;
     flex: 1;
 
+    width: 100%;
     min-width: 0;
     min-height: 245px;
     padding: 17px 18px;
@@ -648,7 +679,6 @@ textarea:focus-visible {
     font-family: Consolas, "Courier New", monospace;
     font-size: 12px;
     line-height: 2;
-
     tab-size: 4;
     white-space: pre;
     overflow: auto;
@@ -671,15 +701,17 @@ textarea:focus-visible {
     justify-content: space-between;
     gap: 12px;
 
+    color: var(--gray-500);
     background: #fafafa;
     border-top: 1px solid var(--gray-200);
 
-    color: var(--gray-500);
     font-size: 9px;
 }
 
 
-/* 9. CARGA DE ARCHIVOS */
+/* =====================================================
+   9. CARGA DE ARCHIVOS
+===================================================== */
 
 .file-upload {
     margin: 18px;
@@ -710,7 +742,7 @@ textarea:focus-visible {
     place-items: center;
 
     color: var(--red);
-    background: var(--red-light);
+    background: var(--red-soft);
     border-radius: 5px;
 
     font-size: 20px;
@@ -738,14 +770,15 @@ textarea:focus-visible {
 
 .file-label {
     max-width: 195px;
-    overflow-wrap: anywhere;
-
     color: var(--gray-500);
     font-size: 9px;
+    overflow-wrap: anywhere;
 }
 
 
-/* 10. BOTONES */
+/* =====================================================
+   10. BOTONES
+===================================================== */
 
 .button {
     min-height: 35px;
@@ -779,8 +812,8 @@ textarea:focus-visible {
 }
 
 .button-primary {
-    background: var(--red);
     color: #ffffff;
+    background: var(--red);
     border-color: var(--red);
 }
 
@@ -808,7 +841,7 @@ textarea:focus-visible {
 
 .button-outline:hover {
     color: var(--red);
-    background: var(--red-light);
+    background: var(--red-soft);
     border-color: #e7c8cb;
 }
 
@@ -820,8 +853,8 @@ textarea:focus-visible {
     justify-content: space-between;
     gap: 16px;
 
-    border-top: 1px solid var(--gray-200);
     background: #ffffff;
+    border-top: 1px solid var(--gray-200);
 }
 
 .editor-hint {
@@ -831,16 +864,18 @@ textarea:focus-visible {
 }
 
 
-/* 11. MENSAJES */
+/* =====================================================
+   11. ALERTAS
+===================================================== */
 
 .message {
     padding: 12px 14px;
     margin-bottom: 14px;
 
+    background: #ffffff;
     border: 1px solid var(--gray-200);
     border-radius: 6px;
 
-    background: #ffffff;
     color: var(--gray-700);
     font-size: 11px;
 }
@@ -852,7 +887,9 @@ textarea:focus-visible {
 }
 
 
-/* 12. SELECTOR Y EXPRESIÓN REGULAR */
+/* =====================================================
+   12. SELECTOR DE TOKENS Y EXPRESIONES REGULARES
+===================================================== */
 
 .token-workspace {
     padding: 21px;
@@ -878,7 +915,6 @@ textarea:focus-visible {
 
     background: #ffffff;
     color: var(--gray-900);
-
     border: 1px solid var(--gray-300);
     border-radius: 5px;
 
@@ -892,7 +928,6 @@ textarea:focus-visible {
 
 .field-hint {
     margin: 7px 0 0;
-
     color: var(--gray-500);
     font-size: 10px;
 }
@@ -900,7 +935,6 @@ textarea:focus-visible {
 .regex-result {
     margin-top: 23px;
     padding-top: 19px;
-
     border-top: 1px solid var(--gray-200);
 }
 
@@ -931,9 +965,9 @@ textarea:focus-visible {
     display: grid;
     place-items: center;
 
-    border-radius: 5px;
-    background: var(--red-light);
+    background: var(--red-soft);
     color: var(--red);
+    border-radius: 5px;
 
     font-size: 10px;
     font-weight: 750;
@@ -945,14 +979,14 @@ textarea:focus-visible {
     padding: 15px;
 
     overflow-x: auto;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
 
     background: #fafafa;
     border: 1px solid var(--gray-200);
     border-radius: 5px;
 
     color: #76232b;
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
 }
 
 .regex-display code {
@@ -961,7 +995,9 @@ textarea:focus-visible {
 }
 
 
-/* 13. RESUMEN DE AUTÓMATAS */
+/* =====================================================
+   13. RESUMEN DE AUTÓMATAS
+===================================================== */
 
 .automata-workspace {
     padding: 21px;
@@ -1010,7 +1046,9 @@ textarea:focus-visible {
 }
 
 
-/* 14. PESTAÑAS */
+/* =====================================================
+   14. PESTAÑAS
+===================================================== */
 
 .tab-bar {
     display: flex;
@@ -1019,23 +1057,19 @@ textarea:focus-visible {
     gap: 5px;
 
     margin-top: 20px;
-    padding-bottom: 0;
-
     border-bottom: 1px solid var(--gray-200);
 }
 
 .tab-button {
-    position: relative;
-
     min-height: 39px;
     padding: 10px 14px;
 
+    color: var(--gray-500);
     background: transparent;
     border: 1px solid transparent;
     border-bottom: 2px solid transparent;
     border-radius: 5px 5px 0 0;
 
-    color: var(--gray-500);
     font-size: 11px;
     font-weight: 600;
 }
@@ -1052,17 +1086,16 @@ textarea:focus-visible {
     border-bottom-color: var(--red);
 }
 
+.automata-panel[hidden],
 .automata-panel.hidden,
 .hidden {
     display: none !important;
 }
 
-.automata-panel[hidden] {
-    display: none !important;
-}
 
-
-/* 15. DIAGRAMAS MERMAID */
+/* =====================================================
+   15. DIAGRAMAS MERMAID
+===================================================== */
 
 .diagram-heading {
     display: flex;
@@ -1114,26 +1147,26 @@ textarea:focus-visible {
 }
 
 .diagram svg {
+    display: block;
     max-width: 100%;
     height: auto;
 }
 
-.diagram .node rect,
-.diagram .node polygon,
-.diagram .node circle {
-    filter: none !important;
-}
-
-.diagram-container .error-text {
+.diagram-error {
+    padding: 12px;
     color: var(--danger);
+    font-size: 11px;
+    overflow-wrap: anywhere;
 }
 
 
-/* 16. TABLA DE TRANSICIONES */
+/* =====================================================
+   16. TABLA DE TRANSICIONES
+===================================================== */
 
 .formal-section {
     padding-top: 5px;
-    scroll-margin-top: calc(var(--topbar-height) + 20px);
+    scroll-margin-top: calc(var(--header-height) + 20px);
 }
 
 .formal-section + .formal-section {
@@ -1153,10 +1186,9 @@ textarea:focus-visible {
 .transitions-table {
     width: 100%;
     min-width: 390px;
-
     border-collapse: collapse;
-    background: #ffffff;
 
+    background: #ffffff;
     font-size: 11px;
 }
 
@@ -1171,16 +1203,15 @@ textarea:focus-visible {
     color: #353535;
 
     border-bottom: 1px solid var(--gray-200);
+    text-align: left;
+    white-space: nowrap;
 
     font-size: 10px;
     font-weight: 700;
-    text-align: left;
-    white-space: nowrap;
 }
 
 .transitions-table td {
     padding: 12px;
-
     color: var(--gray-700);
     border-bottom: 1px solid #eeeeee;
 }
@@ -1204,7 +1235,9 @@ textarea:focus-visible {
 }
 
 
-/* 17. QUÍNTUPLA */
+/* =====================================================
+   17. QUÍNTUPLA
+===================================================== */
 
 .quintuple-grid {
     display: grid;
@@ -1234,9 +1267,9 @@ textarea:focus-visible {
     display: grid;
     place-items: center;
 
-    border-radius: 4px;
-    background: var(--red-light);
+    background: var(--red-soft);
     color: var(--red);
+    border-radius: 4px;
 
     font-family: Georgia, serif;
     font-size: 15px;
@@ -1255,7 +1288,9 @@ textarea:focus-visible {
 }
 
 
-/* 18. ETAPAS DEL PROCESO */
+/* =====================================================
+   18. ETAPAS DEL PROCESO
+===================================================== */
 
 .process-grid {
     display: grid;
@@ -1273,17 +1308,14 @@ textarea:focus-visible {
 }
 
 .process-number {
-    display: inline-block;
-
     color: var(--red);
-    font-size: 10px;
     font-family: Consolas, "Courier New", monospace;
+    font-size: 10px;
     font-weight: 750;
 }
 
 .process-card h3 {
     margin: 11px 0 5px;
-
     color: var(--gray-900);
     font-size: 12px;
     font-weight: 700;
@@ -1291,14 +1323,15 @@ textarea:focus-visible {
 
 .process-card p {
     margin: 0;
-
     color: var(--gray-500);
     font-size: 10px;
     line-height: 1.8;
 }
 
 
-/* 19. PIE DE PÁGINA */
+/* =====================================================
+   19. PIE DE PÁGINA
+===================================================== */
 
 .page-footer {
     margin-top: 47px;
@@ -1351,9 +1384,11 @@ textarea:focus-visible {
 }
 
 
-/* 20. RESPONSIVE: TABLET */
+/* =====================================================
+   20. TABLET
+===================================================== */
 
-@media (max-width: 1050px) {
+@media (max-width: 1050px) and (min-width: 761px) {
     :root {
         --sidebar-width: 220px;
     }
@@ -1369,7 +1404,7 @@ textarea:focus-visible {
     }
 
     .project-label {
-        min-width: 190px;
+        min-width: 180px;
     }
 
     .process-grid {
@@ -1378,29 +1413,56 @@ textarea:focus-visible {
 }
 
 
-/* 21. RESPONSIVE: CELULARES */
+/* =====================================================
+   21. MÓVILES
+   Solo aquí el menú se superpone temporalmente.
+===================================================== */
 
 @media (max-width: 760px) {
     :root {
-        --sidebar-width: 260px;
-        --topbar-height: 58px;
+        --header-height: 58px;
     }
 
     .main-layout {
+        width: 100%;
         margin-left: 0;
     }
 
+    /*
+       El menú empieza cerrado en móvil.
+       La clase .open se activa con JavaScript.
+    */
+
     .sidebar {
-        width: min(var(--sidebar-width), 85vw);
-        transform: translateX(-102%);
-        transition: transform 0.22s ease;
-        box-shadow: none;
+        width: min(280px, 86vw);
+        max-width: 100%;
+        height: 100vh;
+
+        transform: translateX(-105%);
+        visibility: hidden;
+        pointer-events: none;
+
+        transition:
+            transform 0.22s ease,
+            visibility 0s linear 0.22s;
     }
 
     .sidebar.open {
         transform: translateX(0);
-        box-shadow: 12px 0 32px rgba(0, 0, 0, 0.15);
+        visibility: visible;
+        pointer-events: auto;
+
+        box-shadow: 12px 0 35px rgba(0, 0, 0, 0.16);
+
+        transition:
+            transform 0.22s ease,
+            visibility 0s;
     }
+
+    /*
+       El fondo queda debajo del menú
+       pero encima del contenido.
+    */
 
     .sidebar-overlay.visible {
         position: fixed;
@@ -1408,7 +1470,7 @@ textarea:focus-visible {
         z-index: 250;
 
         display: block;
-        background: rgba(0, 0, 0, 0.42);
+        background: rgba(0, 0, 0, 0.4);
     }
 
     .menu-toggle {
@@ -1427,6 +1489,8 @@ textarea:focus-visible {
 
     .breadcrumb {
         flex: 1;
+        gap: 7px;
+        font-size: 10px;
     }
 
     .main-content {
@@ -1436,7 +1500,7 @@ textarea:focus-visible {
     .page-intro {
         align-items: flex-start;
         flex-direction: column;
-        gap: 19px;
+        gap: 18px;
 
         margin-bottom: 27px;
         padding-bottom: 21px;
@@ -1447,8 +1511,8 @@ textarea:focus-visible {
     }
 
     .project-label {
-        min-width: 0;
         width: 100%;
+        min-width: 0;
     }
 
     .content-section {
@@ -1488,6 +1552,8 @@ textarea:focus-visible {
     .file-upload {
         align-items: flex-start;
         flex-direction: column;
+        gap: 13px;
+
         margin: 12px;
         padding: 13px;
     }
@@ -1504,6 +1570,7 @@ textarea:focus-visible {
     .editor-footer {
         align-items: flex-start;
         flex-direction: column;
+        gap: 12px;
     }
 
     .editor-footer .button {
@@ -1538,10 +1605,6 @@ textarea:focus-visible {
         padding: 9px;
     }
 
-    .diagram-heading {
-        align-items: flex-start;
-    }
-
     .quintuple-grid {
         grid-template-columns: 1fr;
     }
@@ -1558,22 +1621,23 @@ textarea:focus-visible {
 }
 
 
-/* 22. PANTALLAS PEQUEÑAS */
+/* =====================================================
+   22. MÓVILES PEQUEÑOS
+===================================================== */
 
 @media (max-width: 380px) {
     .breadcrumb {
-        font-size: 10px;
-        gap: 6px;
+        font-size: 9px;
     }
 
     .page-intro h1 {
-        font-size: 26px;
+        font-size: 25px;
     }
 
     .tab-button {
-        font-size: 9px;
         padding-right: 5px;
         padding-left: 5px;
+        font-size: 9px;
     }
 
     .button-small {
@@ -1582,7 +1646,9 @@ textarea:focus-visible {
 }
 
 
-/* 23. MOVIMIENTO REDUCIDO */
+/* =====================================================
+   23. ACCESIBILIDAD
+===================================================== */
 
 @media (prefers-reduced-motion: reduce) {
     *,
@@ -1591,8 +1657,4 @@ textarea:focus-visible {
         scroll-behavior: auto !important;
         transition: none !important;
     }
-}
-/* Ocultar la ilustración decorativa anterior */
-.hero-visual {
-    display: none !important;
 }
