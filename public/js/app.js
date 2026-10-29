@@ -6,7 +6,7 @@ const selector = document.getElementById('tokenSelector');
 const codeEditor = document.getElementById('codigo');
 const lineNumbers = document.getElementById('lineNumbers');
 
-window.mermaid.initialize({
+mermaid.initialize({
     startOnLoad: false,
     theme: "base",
     securityLevel: "strict",
