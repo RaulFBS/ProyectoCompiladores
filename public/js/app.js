@@ -1,773 +1,495 @@
-import mermaid from
-    "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
 
+const readJSON = (id, fallback) => {
+  const element = document.getElementById(id);
+  if (!element) return fallback;
 
-/* ==================================================
-   1. DATOS RECIBIDOS DESDE FLASK
-================================================== */
-
-function readJSON(id, fallback) {
-    const element = document.getElementById(id);
-
-    if (!element) {
-        return fallback;
-    }
-
-    try {
-        return JSON.parse(element.textContent);
-    } catch (error) {
-        console.error(`No se pudo leer el elemento ${id}:`, error);
-        return fallback;
-    }
-}
+  try {
+    return JSON.parse(element.textContent);
+  } catch (error) {
+    console.error(`No se pudo leer ${id}`, error);
+    return fallback;
+  }
+};
 
 const models = readJSON("modelos-data", []);
 const example = readJSON("ejemplo-data", "");
-
 const selector = document.getElementById("tokenSelector");
-const codeEditor = document.getElementById("codigo");
+const editor = document.getElementById("codigo");
 const lineNumbers = document.getElementById("lineNumbers");
-
-
-/* ==================================================
-   2. CONFIGURACIÓN DE MERMAID
-================================================== */
+const fileInput = document.getElementById("archivo");
+const fileLabel = document.getElementById("fileLabel");
 
 mermaid.initialize({
-    startOnLoad: false,
-    theme: "base",
-    securityLevel: "strict",
-
-    flowchart: {
-        curve: "linear",
-        htmlLabels: false,
-        nodeSpacing: 38,
-        rankSpacing: 48
-    },
-
-    themeVariables: {
-        background: "#ffffff",
-
-        primaryColor: "#f8eded",
-        primaryTextColor: "#202020",
-        primaryBorderColor: "#a62632",
-
-        lineColor: "#606060",
-
-        secondaryColor: "#f4f4f4",
-        tertiaryColor: "#ffffff",
-
-        edgeLabelBackground: "#ffffff",
-
-        fontFamily: "Segoe UI, Arial, sans-serif"
-    }
+  startOnLoad: false,
+  theme: "base",
+  securityLevel: "strict",
+  flowchart: {
+    curve: "linear",
+    htmlLabels: false,
+    nodeSpacing: 38,
+    rankSpacing: 48
+  },
+  themeVariables: {
+    background: "#ffffff",
+    primaryColor: "#f8edef",
+    primaryTextColor: "#242424",
+    primaryBorderColor: "#a52a35",
+    lineColor: "#606060",
+    secondaryColor: "#f2f2f2",
+    tertiaryColor: "#ffffff",
+    edgeLabelBackground: "#ffffff",
+    fontFamily: "Segoe UI, Arial, sans-serif"
+  }
 });
 
-
-/* ==================================================
-   3. MENÚ LATERAL
-================================================== */
-
+/* Menú lateral. En escritorio ocupa una columna independiente. */
 const sidebar = document.getElementById("sidebar");
 const sidebarToggle = document.getElementById("sidebarToggle");
 const sidebarOverlay = document.getElementById("sidebarOverlay");
 
 function closeSidebar() {
-    sidebar?.classList.remove("open");
-    sidebarOverlay?.classList.remove("visible");
-    document.body.classList.remove("menu-open");
-
-    sidebarToggle?.setAttribute("aria-expanded", "false");
+  sidebar?.classList.remove("open");
+  sidebarOverlay?.classList.remove("visible");
+  document.body.classList.remove("menu-open");
+  sidebarToggle?.setAttribute("aria-expanded", "false");
+  sidebarToggle?.setAttribute("aria-label", "Abrir menú");
 }
 
 function toggleSidebar() {
-    if (!sidebar || !sidebarOverlay) return;
+  if (!sidebar || !sidebarOverlay) return;
 
-    const open = !sidebar.classList.contains("open");
+  const open = !sidebar.classList.contains("open");
 
-    sidebar.classList.toggle("open", open);
-    sidebarOverlay.classList.toggle("visible", open);
-    document.body.classList.toggle("menu-open", open);
+  sidebar.classList.toggle("open", open);
+  sidebarOverlay.classList.toggle("visible", open);
+  document.body.classList.toggle("menu-open", open);
 
-    sidebarToggle?.setAttribute("aria-expanded", String(open));
+  sidebarToggle?.setAttribute("aria-expanded", String(open));
+  sidebarToggle?.setAttribute(
+    "aria-label",
+    open ? "Cerrar menú" : "Abrir menú"
+  );
 }
 
 sidebarToggle?.addEventListener("click", toggleSidebar);
 sidebarOverlay?.addEventListener("click", closeSidebar);
 
-document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") closeSidebar();
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape") closeSidebar();
 });
 
 window.addEventListener("resize", () => {
-    if (window.innerWidth > 760) {
-        closeSidebar();
-    }
+  if (window.innerWidth > 760) closeSidebar();
 });
 
-/* ==================================================
-   4. NAVEGACIÓN ENTRE SECCIONES
-================================================== */
+/* Navegación y sección activa. */
+const navItems = [...document.querySelectorAll(".nav-item")];
 
-const sideLinks = document.querySelectorAll(".side-link");
-
-function setActiveLink(sectionId) {
-    sideLinks.forEach((link) => {
-        const isActive =
-            link.dataset.section === sectionId;
-
-        link.classList.toggle("active", isActive);
-    });
+function setActiveNav(id) {
+  navItems.forEach(item => {
+    item.classList.toggle("active", item.dataset.section === id);
+  });
 }
 
-function activateTab(tabName) {
-    const buttons = document.querySelectorAll(".tab-button");
-    const panels = document.querySelectorAll(".automata-panel");
-
-    buttons.forEach((button) => {
-        const isActive = button.dataset.tab === tabName;
-
-        button.classList.toggle("active", isActive);
-        button.setAttribute(
-            "aria-selected",
-            String(isActive)
-        );
-    });
-
-    panels.forEach((panel) => {
-        const isActive = panel.id === `panel-${tabName}`;
-
-        panel.classList.toggle("hidden", !isActive);
-        panel.hidden = !isActive;
-    });
-}
-
-sideLinks.forEach((link) => {
-    link.addEventListener("click", (event) => {
-        const href = link.getAttribute("href");
-
-        if (!href || !href.startsWith("#")) {
-            closeSidebar();
-            return;
-        }
-
-        const targetId = href.slice(1);
-
-        /*
-         * La tabla y la quíntupla están dentro de una
-         * pestaña que inicialmente está oculta.
-         * Primero se abre esa pestaña y luego se navega.
-         */
-        if (targetId === "tabla" || targetId === "quintupla") {
-            event.preventDefault();
-
-            activateTab("formal");
-
-            const target = document.getElementById(targetId);
-
-            closeSidebar();
-
-            if (target) {
-                target.scrollIntoView({
-                    behavior: "smooth",
-                    block: "start"
-                });
-
-                history.replaceState(null, "", `#${targetId}`);
-            }
-
-            setActiveLink("automatas");
-            return;
-        }
-
-        closeSidebar();
-
-        setActiveLink(targetId);
-    });
+navItems.forEach(item => {
+  item.addEventListener("click", () => {
+    const target = item.getAttribute("href")?.slice(1);
+    if (target) setActiveNav(target);
+    closeSidebar();
+  });
 });
-
-
-/* ==================================================
-   5. SELECCIÓN DE TOKEN
-================================================== */
-
-function getSelectedModel() {
-    if (!Array.isArray(models) || models.length === 0) {
-        return null;
-    }
-
-    if (!selector) {
-        return models[0];
-    }
-
-    return (
-        models.find(
-            (model) => model.token === selector.value
-        ) || models[0]
-    );
-}
-
-
-/* ==================================================
-   6. REPRESENTACIÓN DE AUTÓMATAS
-================================================== */
-
-async function setDiagram(element, source) {
-    if (!element) {
-        return;
-    }
-
-    element.removeAttribute("data-processed");
-    element.replaceChildren();
-
-    if (!source || !String(source).trim()) {
-        element.textContent =
-            "No hay un diagrama disponible para este modelo.";
-
-        return;
-    }
-
-    element.classList.add("mermaid");
-    element.textContent = String(source);
-
-    try {
-        await mermaid.run({
-            nodes: [element]
-        });
-    } catch (error) {
-        element.replaceChildren();
-
-        const message = document.createElement("p");
-        message.className = "diagram-error";
-        message.textContent =
-            "No se pudo representar el diagrama. " +
-            "Revisa la fuente Mermaid del autómata.";
-
-        element.appendChild(message);
-
-        console.error(
-            "Error renderizando el autómata:",
-            error
-        );
-    }
-}
-
-
-/* ==================================================
-   7. CREACIÓN SEGURA DE CELDAS
-================================================== */
-
-function appendCell(
-    row,
-    text,
-    tag = "td",
-    className = ""
-) {
-    const cell = document.createElement(tag);
-
-    cell.textContent =
-        text === null || text === undefined
-            ? ""
-            : String(text);
-
-    if (className) {
-        cell.className = className;
-    }
-
-    row.appendChild(cell);
-
-    return cell;
-}
-
-
-/* ==================================================
-   8. TABLA DE TRANSICIONES
-================================================== */
-
-function renderTransitionTable(tableData) {
-    const container = document.getElementById("transitionTable");
-
-    if (!container) {
-        return;
-    }
-
-    container.replaceChildren();
-
-    if (
-        !tableData ||
-        !Array.isArray(tableData.columnas) ||
-        !Array.isArray(tableData.filas)
-    ) {
-        const message = document.createElement("p");
-        message.className = "diagram-error";
-        message.textContent =
-            "No hay una tabla de transiciones disponible.";
-
-        container.appendChild(message);
-        return;
-    }
-
-    const table = document.createElement("table");
-    table.className = "transitions-table";
-
-    const thead = document.createElement("thead");
-    const headerRow = document.createElement("tr");
-
-    appendCell(headerRow, "ESTADO", "th");
-
-    tableData.columnas.forEach((column) => {
-        appendCell(headerRow, column, "th");
-    });
-
-    thead.appendChild(headerRow);
-    table.appendChild(thead);
-
-    const tbody = document.createElement("tbody");
-
-    tableData.filas.forEach((rowData) => {
-        const row = document.createElement("tr");
-
-        const stateLabel =
-            `${rowData.estado}` +
-            `${rowData.inicial ? " →" : ""}` +
-            `${rowData.final ? " *" : ""}`;
-
-        appendCell(
-            row,
-            stateLabel,
-            "td",
-            rowData.final ? "final-state" : ""
-        );
-
-        const transitions = Array.isArray(rowData.transiciones)
-            ? rowData.transiciones
-            : [];
-
-        transitions.forEach((target) => {
-            appendCell(
-                row,
-                target,
-                "td",
-                target === "—" ? "no-transition" : ""
-            );
-        });
-
-        tbody.appendChild(row);
-    });
-
-    table.appendChild(tbody);
-    container.appendChild(table);
-}
-
-
-/* ==================================================
-   9. QUÍNTUPLA FORMAL
-================================================== */
-
-function formatFormalValue(value) {
-    if (value === null || value === undefined) {
-        return "—";
-    }
-
-    if (typeof value === "string") {
-        return value;
-    }
-
-    if (Array.isArray(value)) {
-        return `{ ${value.join(", ")} }`;
-    }
-
-    if (typeof value === "object") {
-        return JSON.stringify(value, null, 2);
-    }
-
-    return String(value);
-}
-
-function renderQuintuple(quintuple) {
-    const container = document.getElementById("quintupleContent");
-
-    if (!container) {
-        return;
-    }
-
-    container.replaceChildren();
-
-    if (!quintuple) {
-        const message = document.createElement("p");
-        message.textContent =
-            "No hay una quíntupla disponible para este modelo.";
-
-        container.appendChild(message);
-        return;
-    }
-
-    const items = [
-        [
-            "Q",
-            formatFormalValue(quintuple.Q)
-        ],
-        [
-            "Σ",
-            formatFormalValue(
-                quintuple.Sigma ?? quintuple.sigma
-            )
-        ],
-        [
-            "δ",
-            formatFormalValue(quintuple.delta)
-        ],
-        [
-            "q₀",
-            formatFormalValue(quintuple.q0)
-        ],
-        [
-            "F",
-            formatFormalValue(quintuple.F)
-        ]
-    ];
-
-    items.forEach(([key, value]) => {
-        const card = document.createElement("div");
-        card.className = "quintuple-item";
-
-        const symbol = document.createElement("span");
-        symbol.className = "quintuple-symbol";
-        symbol.textContent = key;
-
-        const content = document.createElement("code");
-        content.textContent = value;
-
-        card.append(symbol, content);
-        container.appendChild(card);
-    });
-}
-
-
-/* ==================================================
-   10. ACTUALIZACIÓN DEL TOKEN SELECCIONADO
-================================================== */
-
-async function renderSelectedModel() {
-    const model = getSelectedModel();
-
-    const regexValue = document.getElementById("regexValue");
-    const afndCount = document.getElementById("afndCount");
-    const afdCount = document.getElementById("afdCount");
-
-    if (!model) {
-        if (regexValue) {
-            regexValue.textContent =
-                "No hay modelos de tokens disponibles.";
-        }
-
-        if (afndCount) {
-            afndCount.textContent = "—";
-        }
-
-        if (afdCount) {
-            afdCount.textContent = "—";
-        }
-
-        renderTransitionTable(null);
-        renderQuintuple(null);
-
-        await setDiagram(
-            document.getElementById("afndDiagram"),
-            ""
-        );
-
-        await setDiagram(
-            document.getElementById("afdDiagram"),
-            ""
-        );
-
-        return;
-    }
-
-    if (regexValue) {
-        regexValue.textContent = model.regex ?? "—";
-    }
-
-    if (afndCount) {
-        afndCount.textContent =
-            `${model.cantidad_estados_afnd ?? "—"} estados · ` +
-            `inicial ${model.afnd_inicial ?? "—"} · ` +
-            `final ${model.afnd_final ?? "—"}`;
-    }
-
-    if (afdCount) {
-        const finales = Array.isArray(model.afd_finales)
-            ? model.afd_finales
-            : [];
-
-        afdCount.textContent =
-            `${model.cantidad_estados_afd ?? "—"} estados · ` +
-            `inicial ${model.afd_inicial ?? "—"} · ` +
-            `finales ${finales.join(", ") || "ninguno"}`;
-    }
-
-    await setDiagram(
-        document.getElementById("afndDiagram"),
-        model.afnd_diagrama
-    );
-
-    await setDiagram(
-        document.getElementById("afdDiagram"),
-        model.afd_diagrama
-    );
-
-    renderTransitionTable(model.tabla);
-    renderQuintuple(model.quintupla);
-}
-
-if (selector) {
-    selector.addEventListener("change", renderSelectedModel);
-}
-
-
-/* ==================================================
-   11. PESTAÑAS AFND, AFD Y TABLA
-================================================== */
-
-document.querySelectorAll(".tab-button").forEach((button) => {
-    button.addEventListener("click", () => {
-        activateTab(button.dataset.tab);
-    });
-});
-
-
-/* ==================================================
-   12. NÚMEROS DE LÍNEA
-================================================== */
-
-function updateLineNumbers() {
-    if (!codeEditor || !lineNumbers) {
-        return;
-    }
-
-    const lines = Math.max(
-        1,
-        codeEditor.value.split("\n").length
-    );
-
-    lineNumbers.replaceChildren();
-
-    for (let index = 1; index <= lines; index++) {
-        if (index > 1) {
-            lineNumbers.appendChild(
-                document.createElement("br")
-            );
-        }
-
-        lineNumbers.appendChild(
-            document.createTextNode(String(index))
-        );
-    }
-
-    const lineCount = document.getElementById("lineCount");
-
-    if (lineCount) {
-        lineCount.textContent =
-            lines === 1 ? "1 línea" : `${lines} líneas`;
-    }
-}
-
-if (codeEditor) {
-    codeEditor.addEventListener("input", updateLineNumbers);
-
-    codeEditor.addEventListener("scroll", () => {
-        if (lineNumbers) {
-            lineNumbers.scrollTop = codeEditor.scrollTop;
-        }
-    });
-}
-
-
-/* ==================================================
-   13. CARGAR EJEMPLO
-================================================== */
-
-const loadExampleButton = document.getElementById("cargarEjemplo");
-const fileInput = document.getElementById("archivo");
-const fileLabel = document.getElementById("fileLabel");
-
-if (loadExampleButton && codeEditor) {
-    loadExampleButton.addEventListener("click", () => {
-        codeEditor.value =
-            typeof example === "string" ? example : "";
-
-        if (fileInput) {
-            fileInput.value = "";
-        }
-
-        if (fileLabel) {
-            fileLabel.textContent =
-                "Ejemplo de trama cargado";
-        }
-
-        updateLineNumbers();
-        codeEditor.focus();
-    });
-}
-
-
-/* ==================================================
-   14. LIMPIAR EL EDITOR
-================================================== */
-
-const clearCodeButton = document.getElementById("limpiarCodigo");
-
-if (clearCodeButton && codeEditor) {
-    clearCodeButton.addEventListener("click", () => {
-        codeEditor.value = "";
-
-        if (fileInput) {
-            fileInput.value = "";
-        }
-
-        if (fileLabel) {
-            fileLabel.textContent =
-                "Ningún archivo seleccionado";
-        }
-
-        updateLineNumbers();
-        codeEditor.focus();
-    });
-}
-
-
-/* ==================================================
-   15. CARGAR ARCHIVO EN EL EDITOR
-================================================== */
-
-if (fileInput && codeEditor) {
-    fileInput.addEventListener("change", async (event) => {
-        const file = event.target.files?.[0];
-
-        if (!file) {
-            if (fileLabel) {
-                fileLabel.textContent =
-                    "Ningún archivo seleccionado";
-            }
-
-            return;
-        }
-
-        const allowedExtensions = ["txt", "log", "dsl"];
-        const extension = file.name
-            .split(".")
-            .pop()
-            .toLowerCase();
-
-        if (!allowedExtensions.includes(extension)) {
-            alert(
-                "Selecciona un archivo TXT, LOG o DSL."
-            );
-
-            fileInput.value = "";
-            return;
-        }
-
-        const maxSize = 1024 * 1024;
-
-        if (file.size > maxSize) {
-            alert("El archivo no puede superar 1 MB.");
-
-            fileInput.value = "";
-            return;
-        }
-
-        try {
-            const content = await file.text();
-
-            codeEditor.value = content;
-
-            if (fileLabel) {
-                fileLabel.textContent = file.name;
-            }
-
-            updateLineNumbers();
-            codeEditor.focus();
-
-        } catch (error) {
-            console.error("Error leyendo el archivo:", error);
-
-            alert("No se pudo leer el archivo seleccionado.");
-
-            fileInput.value = "";
-        }
-    });
-}
-
-
-/* ==================================================
-   16. ESTADO DEL BOTÓN DE ANÁLISIS
-================================================== */
-
-const compilerForm = document.getElementById("compilerForm");
-const analyzeButton = document.getElementById("analizarButton");
-
-if (compilerForm && analyzeButton) {
-    compilerForm.addEventListener("submit", () => {
-        analyzeButton.disabled = true;
-        analyzeButton.setAttribute("aria-busy", "true");
-
-        analyzeButton.textContent = "Procesando...";
-    });
-}
-
-
-/* ==================================================
-   17. NAVEGACIÓN ACTIVA AL DESPLAZARSE
-================================================== */
-
-const observedSections = [
-    "inicio",
-    "editor",
-    "analisis",
-    "automatas"
-]
-    .map((id) => document.getElementById(id))
-    .filter(Boolean);
 
 if ("IntersectionObserver" in window) {
-    const observer = new IntersectionObserver(
-        (entries) => {
-            const visibleEntries = entries
-                .filter((entry) => entry.isIntersecting)
-                .sort(
-                    (a, b) =>
-                        b.intersectionRatio - a.intersectionRatio
-                );
+  const sections = [
+    "inicio",
+    "entrada",
+    "resultado",
+    "automatas",
+    "gramatica"
+  ]
+    .map(id => document.getElementById(id))
+    .filter(Boolean);
 
-            if (visibleEntries.length > 0) {
-                setActiveLink(visibleEntries[0].target.id);
-            }
-        },
-        {
-            rootMargin: "-20% 0px -65% 0px",
-            threshold: [0, 0.1, 0.3, 0.6]
-        }
-    );
+  const observer = new IntersectionObserver(entries => {
+    const visible = entries
+      .filter(entry => entry.isIntersecting)
+      .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
 
-    observedSections.forEach((section) => {
-        observer.observe(section);
-    });
+    if (visible) setActiveNav(visible.target.id);
+  }, {
+    rootMargin: "-18% 0px -67% 0px",
+    threshold: [0, 0.1, 0.3, 0.6]
+  });
+
+  sections.forEach(section => observer.observe(section));
 }
 
+/* Obtener el modelo seleccionado. */
+function selectedModel() {
+  if (!models.length) return null;
 
-/* ==================================================
-   18. INICIALIZACIÓN
-================================================== */
+  return models.find(
+    model => model.token === selector?.value
+  ) || models[0];
+}
 
+/* Renderizar diagramas Mermaid. */
+async function drawDiagram(element, source) {
+  if (!element) return;
+
+  element.removeAttribute("data-processed");
+  element.replaceChildren();
+
+  if (!source || !String(source).trim()) {
+    element.textContent =
+      "No hay un diagrama disponible para este token.";
+    return;
+  }
+
+  element.textContent = String(source);
+
+  try {
+    await mermaid.run({ nodes: [element] });
+  } catch (error) {
+    element.replaceChildren();
+
+    const message = document.createElement("p");
+    message.className = "diagram-error";
+    message.textContent =
+      "No se pudo representar el diagrama. Revisa la fuente Mermaid.";
+
+    element.appendChild(message);
+    console.error("Error al renderizar el autómata:", error);
+  }
+}
+
+/* Crear celdas de forma segura. */
+function appendCell(row, text, tag = "td", className = "") {
+  const cell = document.createElement(tag);
+  cell.textContent = text == null ? "" : String(text);
+
+  if (className) cell.className = className;
+
+  row.appendChild(cell);
+  return cell;
+}
+
+/* Tabla de transiciones. */
+function renderTransitionTable(tableData) {
+  const container = document.getElementById("transitionTable");
+  if (!container) return;
+
+  container.replaceChildren();
+
+  if (
+    !tableData ||
+    !Array.isArray(tableData.columnas) ||
+    !Array.isArray(tableData.filas)
+  ) {
+    container.textContent =
+      "No hay una tabla de transiciones disponible.";
+    return;
+  }
+
+  const table = document.createElement("table");
+  table.className = "transitions-table";
+
+  const thead = document.createElement("thead");
+  const header = document.createElement("tr");
+
+  appendCell(header, "ESTADO", "th");
+
+  tableData.columnas.forEach(column => {
+    appendCell(header, column, "th");
+  });
+
+  thead.appendChild(header);
+  table.appendChild(thead);
+
+  const tbody = document.createElement("tbody");
+
+  tableData.filas.forEach(item => {
+    const row = document.createElement("tr");
+
+    const state =
+      `${item.estado}` +
+      `${item.inicial ? " →" : ""}` +
+      `${item.final ? " *" : ""}`;
+
+    appendCell(
+      row,
+      state,
+      "td",
+      item.final ? "final-state" : ""
+    );
+
+    (item.transiciones || []).forEach(target => {
+      appendCell(
+        row,
+        target,
+        "td",
+        target === "—" ? "no-transition" : ""
+      );
+    });
+
+    tbody.appendChild(row);
+  });
+
+  table.appendChild(tbody);
+  container.appendChild(table);
+}
+
+/* Formatear los valores de la quíntupla. */
+function formatFormalValue(value) {
+  if (value == null) return "—";
+  if (Array.isArray(value)) return `{ ${value.join(", ")} }`;
+
+  if (typeof value === "object") {
+    return JSON.stringify(value, null, 2);
+  }
+
+  return String(value);
+}
+
+/* Mostrar la quíntupla. */
+function renderQuintuple(quintuple) {
+  const container = document.getElementById("quintupleContent");
+  if (!container) return;
+
+  container.replaceChildren();
+
+  if (!quintuple) {
+    container.textContent = "No hay una quíntupla disponible.";
+    return;
+  }
+
+  const items = [
+    ["Q", quintuple.Q],
+    ["Σ", quintuple.Sigma ?? quintuple.sigma],
+    ["δ", quintuple.delta],
+    ["q₀", quintuple.q0],
+    ["F", quintuple.F]
+  ];
+
+  items.forEach(([key, value]) => {
+    const card = document.createElement("div");
+    card.className = "quintuple-item";
+
+    const symbol = document.createElement("span");
+    symbol.className = "quintuple-symbol";
+    symbol.textContent = key;
+
+    const code = document.createElement("code");
+    code.textContent = formatFormalValue(value);
+
+    card.append(symbol, code);
+    container.appendChild(card);
+  });
+}
+
+/* Actualizar todos los datos del token seleccionado. */
+async function renderSelectedModel() {
+  const model = selectedModel();
+
+  const regex = document.getElementById("regexValue");
+  const afndCount = document.getElementById("afndCount");
+  const afdCount = document.getElementById("afdCount");
+
+  if (!model) {
+    if (regex) regex.textContent = "No hay modelos de tokens.";
+    if (afndCount) afndCount.textContent = "—";
+    if (afdCount) afdCount.textContent = "—";
+
+    renderTransitionTable(null);
+    renderQuintuple(null);
+
+    await drawDiagram(
+      document.getElementById("afndDiagram"),
+      ""
+    );
+
+    await drawDiagram(
+      document.getElementById("afdDiagram"),
+      ""
+    );
+
+    return;
+  }
+
+  if (regex) regex.textContent = model.regex ?? "—";
+
+  if (afndCount) {
+    afndCount.textContent =
+      `${model.cantidad_estados_afnd ?? "—"} estados · ` +
+      `inicial ${model.afnd_inicial ?? "—"} · ` +
+      `final ${model.afnd_final ?? "—"}`;
+  }
+
+  const finals = Array.isArray(model.afd_finales)
+    ? model.afd_finales
+    : [];
+
+  if (afdCount) {
+    afdCount.textContent =
+      `${model.cantidad_estados_afd ?? "—"} estados · ` +
+      `inicial ${model.afd_inicial ?? "—"} · ` +
+      `finales ${finals.join(", ") || "ninguno"}`;
+  }
+
+  await drawDiagram(
+    document.getElementById("afndDiagram"),
+    model.afnd_diagrama
+  );
+
+  await drawDiagram(
+    document.getElementById("afdDiagram"),
+    model.afd_diagrama
+  );
+
+  renderTransitionTable(model.tabla);
+  renderQuintuple(model.quintupla);
+}
+
+selector?.addEventListener("change", renderSelectedModel);
+
+/* Pestañas de AFND, AFD, transiciones y quíntupla. */
+function activateTab(name) {
+  document.querySelectorAll(".tab-button").forEach(button => {
+    const active = button.dataset.tab === name;
+
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-selected", String(active));
+  });
+
+  document.querySelectorAll(".automata-panel").forEach(panel => {
+    const active = panel.id === `panel-${name}`;
+
+    panel.classList.toggle("hidden", !active);
+    panel.hidden = !active;
+  });
+}
+
+document.querySelectorAll(".tab-button").forEach(button => {
+  button.addEventListener("click", () => {
+    activateTab(button.dataset.tab);
+  });
+});
+
+/* Números de línea. */
+function updateLineNumbers() {
+  if (!editor || !lineNumbers) return;
+
+  const count = Math.max(
+    1,
+    editor.value.split("\n").length
+  );
+
+  lineNumbers.replaceChildren();
+
+  for (let i = 1; i <= count; i++) {
+    if (i > 1) {
+      lineNumbers.appendChild(document.createElement("br"));
+    }
+
+    lineNumbers.appendChild(
+      document.createTextNode(String(i))
+    );
+  }
+
+  const label = document.getElementById("lineCount");
+
+  if (label) {
+    label.textContent =
+      count === 1 ? "1 línea" : `${count} líneas`;
+  }
+}
+
+editor?.addEventListener("input", updateLineNumbers);
+
+editor?.addEventListener("scroll", () => {
+  if (lineNumbers) {
+    lineNumbers.scrollTop = editor.scrollTop;
+  }
+});
+
+/* Restaurar el ejemplo. */
+document.getElementById("cargarEjemplo")?.addEventListener("click", () => {
+  if (!editor) return;
+
+  editor.value = typeof example === "string" ? example : "";
+
+  if (fileInput) fileInput.value = "";
+  if (fileLabel) fileLabel.textContent = "Ejemplo restaurado";
+
+  updateLineNumbers();
+  editor.focus();
+});
+
+/* Limpiar el editor. */
+document.getElementById("limpiarCodigo")?.addEventListener("click", () => {
+  if (!editor) return;
+
+  editor.value = "";
+
+  if (fileInput) fileInput.value = "";
+  if (fileLabel) fileLabel.textContent = "TXT, LOG o DSL";
+
+  updateLineNumbers();
+  editor.focus();
+});
+
+/* Cargar archivo en el editor. */
+fileInput?.addEventListener("change", async event => {
+  const file = event.target.files?.[0];
+
+  if (!file) {
+    if (fileLabel) fileLabel.textContent = "TXT, LOG o DSL";
+    return;
+  }
+
+  const extension = file.name.split(".").pop().toLowerCase();
+
+  if (!["txt", "log", "dsl"].includes(extension)) {
+    alert("Selecciona un archivo TXT, LOG o DSL.");
+    fileInput.value = "";
+    return;
+  }
+
+  if (file.size > 1024 * 1024) {
+    alert("El archivo no puede superar 1 MB.");
+    fileInput.value = "";
+    return;
+  }
+
+  try {
+    const content = await file.text();
+
+    if (editor) editor.value = content;
+    if (fileLabel) fileLabel.textContent = file.name;
+
+    updateLineNumbers();
+  } catch (error) {
+    console.error("No se pudo leer el archivo:", error);
+    alert("No se pudo leer el archivo seleccionado.");
+    fileInput.value = "";
+  }
+});
+
+/* Evitar doble envío del formulario. */
+document.getElementById("compilerForm")?.addEventListener("submit", () => {
+  const button = document.getElementById("analizarButton");
+
+  if (button) {
+    button.disabled = true;
+    button.textContent = "Procesando...";
+  }
+});
+
+/* Inicialización. */
 updateLineNumbers();
-
 activateTab("afnd");
 
-renderSelectedModel().catch((error) => {
-    console.error(
-        "No se pudo inicializar la visualización:",
-        error
-    );
+renderSelectedModel().catch(error => {
+  console.error("Error al inicializar TramaLab:", error);
 });
