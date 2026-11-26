@@ -1,224 +1,126 @@
-"""Parser de TramaDSL, validación semántica y generación del árbol sintáctico."""
+"""Parser recursivo descendente de TramaDSL. El AST es serializable a JSON."""
 from __future__ import annotations
 from typing import Any
 
-ESPERADOS = {
-    "INICIAR_TURNO": "IDENTIFICADOR",
-    "REGISTRAR": "NUMERO",
-    "DETENER_MAQUINA": "IDENTIFICADOR",
-    "REPORTAR_MERMA": "NUMERO",
-    "CAMBIAR_LOTE": "IDENTIFICADOR",
-}
-
 GRAMATICA = [
-    ("programa", "programa → sentencia*"),
-    ("sentencia", "sentencia → INICIAR_TURNO IDENTIFICADOR ;"),
-    ("sentencia", "sentencia → REGISTRAR NUMERO ;"),
-    ("sentencia", "sentencia → DETENER_MAQUINA IDENTIFICADOR ;"),
-    ("sentencia", "sentencia → REPORTAR_MERMA NUMERO ;"),
-    ("sentencia", "sentencia → CAMBIAR_LOTE IDENTIFICADOR ;"),
+ ("program", "program → statement*"),
+ ("statement", "statement → DEF IDENTIFICADOR = expression ; | IDENTIFICADOR = expression ;"),
+ ("statement", "statement → command expression ; | SI ( expression ) ENTONCES { statement* } (SINO { statement* })?"),
+ ("expression", "expression → comparison ( ( + | - ) comparison )*"),
+ ("comparison", "comparison → term ( ( == | != | < | > | <= | >= ) term )?"),
+ ("term", "term → factor ( ( * | / ) factor )*"),
+ ("factor", "factor → NUMERO | CADENA | IDENTIFICADOR | ( expression ) | - factor"),
 ]
+COMMANDS = {"INICIAR_TURNO", "REGISTRAR", "REPORTAR_MERMA", "DETENER_MAQUINA", "CAMBIAR_LOTE"}
 
+class Parser:
+    def __init__(self, tokens):
+        self.tokens = tokens; self.i = 0; self.errors = []
+    def peek(self, offset=0):
+        return self.tokens[self.i + offset] if self.i + offset < len(self.tokens) else None
+    def is_(self, *values):
+        t = self.peek(); return t is not None and (t["tipo"] in values or t["lexema"] in values)
+    def take(self):
+        t = self.peek()
+        if t is not None: self.i += 1
+        return t
+    def error(self, msg, token=None):
+        t = token or self.peek() or (self.tokens[-1] if self.tokens else {"linea":1,"columna":1})
+        self.errors.append({"mensaje": msg, "linea": t.get("linea",1), "columna": t.get("columna",1)})
+    def expect(self, value, message=None):
+        if self.is_(value): return self.take()
+        self.error(message or f"Se esperaba '{value}'.")
+        raise ParseError()
+    def synchronize(self, in_block=False):
+        while self.peek():
+            if self.is_("}"): return
+            if self.is_(";"): self.take(); return
+            if self.is_("DEF","SI",*COMMANDS,"EMITIR") or (self.peek()["tipo"] == "IDENTIFICADOR" and self.is_("=",) if False else False): return
+            self.take()
+    def program(self):
+        body=[]
+        while self.peek():
+            before=self.i
+            try: body.append(self.statement())
+            except ParseError: self.synchronize()
+            if before == self.i: self.take()
+        return {"type":"Program","body":body,"line":1}
+    def statement(self):
+        t=self.peek()
+        if self.is_("DEF"):
+            self.take(); name=self.expect("IDENTIFICADOR", "DEF requiere un nombre de variable.")
+            self.expect("=", "Se esperaba '=' en la declaración.")
+            value=self.expression(); self.expect(";", "Falta ';' tras la declaración.")
+            return {"type":"VarDecl","name":name["lexema"],"value":value,"line":t["linea"],"column":t["columna"]}
+        if self.is_("SI"): return self.if_statement()
+        if t and t["tipo"] in COMMANDS | {"EMITIR"}:
+            command=self.take(); arg=self.expression(); self.expect(";", "Falta ';' tras el comando.")
+            return {"type":"CommandStmt","command":command["tipo"],"argument":arg,"line":command["linea"],"column":command["columna"]}
+        if t and t["tipo"] == "IDENTIFICADOR":
+            name=self.take(); self.expect("=", "Se esperaba '=' tras el identificador.")
+            value=self.expression(); self.expect(";", "Falta ';' tras la asignación.")
+            return {"type":"Assign","name":name["lexema"],"value":value,"line":name["linea"],"column":name["columna"]}
+        self.error("Se esperaba una declaración, asignación, condición o comando.", t)
+        raise ParseError()
+    def if_statement(self):
+        start=self.take(); self.expect("("); test=self.expression(); self.expect(")")
+        self.expect("ENTONCES"); self.expect("{")
+        consequent=self.block()
+        alternate=[]
+        if self.is_("SINO"):
+            self.take(); self.expect("{"); alternate=self.block()
+        return {"type":"IfStmt","test":test,"consequent":consequent,"alternate":alternate,"line":start["linea"],"column":start["columna"]}
+    def block(self):
+        body=[]
+        while self.peek() and not self.is_("}"):
+            before=self.i
+            try: body.append(self.statement())
+            except ParseError: self.synchronize(True)
+            if before == self.i: self.take()
+        self.expect("}", "Falta '}' para cerrar el bloque.")
+        return body
+    def expression(self): return self.comparison()
+    def comparison(self):
+        node=self.term()
+        if self.is_("==","!=","<",">","<=",">="):
+            op=self.take(); node={"type":"BinaryExpr","operator":op["lexema"],"left":node,"right":self.term(),"line":op["linea"]}
+        return node
+    def term(self):
+        node=self.factor()
+        while self.is_("+","-"):
+            op=self.take(); node={"type":"BinaryExpr","operator":op["lexema"],"left":node,"right":self.factor(),"line":op["linea"]}
+        return node
+    def factor(self):
+        node=self.unary()
+        while self.is_("*","/"):
+            op=self.take(); node={"type":"BinaryExpr","operator":op["lexema"],"left":node,"right":self.unary(),"line":op["linea"]}
+        return node
+    def unary(self):
+        if self.is_("-"):
+            op=self.take(); return {"type":"UnaryExpr","operator":"-","operand":self.unary(),"line":op["linea"]}
+        if self.is_("("):
+            self.take(); node=self.expression(); self.expect(")"); return node
+        t=self.take()
+        if t is None: self.error("Expresión incompleta."); raise ParseError()
+        if t["tipo"] == "NUMERO":
+            return {"type":"NumberLiteral","value":float(t["lexema"]) if "." in t["lexema"] else int(t["lexema"]),"line":t["linea"]}
+        if t["tipo"] == "CADENA":
+            import json
+            try: value=json.loads(t["lexema"]) if t["lexema"].startswith('"') else bytes(t["lexema"][1:-1],"utf8").decode("unicode_escape")
+            except Exception: value=t["lexema"][1:-1]
+            return {"type":"StringLiteral","value":value,"line":t["linea"]}
+        if t["tipo"] == "IDENTIFICADOR": return {"type":"Identifier","name":t["lexema"],"line":t["linea"]}
+        self.error("Se esperaba un número, cadena, variable o expresión entre paréntesis.", t); raise ParseError()
 
-def _safe_label(value: Any) -> str:
-    """Normaliza etiquetas para que el texto no rompa la sintaxis Mermaid."""
-    return (
-        str(value)
-        .replace("&", " y ")
-        .replace('"', "'")
-        .replace("|", "¦")
-        .replace("[", "(")
-        .replace("]", ")")
-        .replace("{", "(")
-        .replace("}", ")")
-        .replace("<", "‹")
-        .replace(">", "›")
-        .replace("`", "'")
-        .replace("\n", " ")
-        .replace("\r", " ")
-    )
+class ParseError(Exception): pass
 
+def analizar_sintaxis(tokens):
+    p=Parser(tokens); ast=p.program()
+    return {"ast":ast,"errores":p.errors,"sentencias":ast["body"],"gramatica":[{"nombre":n,"produccion":r} for n,r in GRAMATICA],"ast_diagrama":""}
 
-def generar_diagrama_ast(ast: dict[str, Any]) -> str:
-    """Crea la fuente Mermaid del AST construido por el parser."""
-    lines = [
-        "flowchart TB",
-        '    AST0(["Programa"])',
-        "    classDef error fill:#fff1f2,stroke:#a52a35,color:#842029;",
-        "    classDef command fill:#f8edef,stroke:#d9aeb3,color:#692029;",
-    ]
-    next_id = 1
+def generar_diagrama_ast(ast):
+    return ast
 
-    def add_node(parent_id: str, node: dict[str, Any]) -> None:
-        nonlocal next_id
-        current_id = f"AST{next_id}"
-        next_id += 1
-
-        node_type = node.get("tipo", "Nodo")
-        line = node.get("linea")
-
-        if node_type == "Sentencia":
-            label = f"Sentencia · línea {line}"
-        elif node_type in {"Error léxico", "Error sintáctico", "Error semántico"}:
-            label = f"{node_type} · línea {line}: {node.get('mensaje', '')}"
-        elif node_type == "Programa":
-            label = "Programa"
-        else:
-            value = node.get("valor", "")
-            label = f"{node_type}: {value}" if value != "" else node_type
-
-        label = _safe_label(label)
-        lines.append(f'    {current_id}["{label}"]')
-        lines.append(f"    {parent_id} --> {current_id}")
-
-        if node_type in {"Error léxico", "Error sintáctico", "Error semántico"}:
-            lines.append(f"    class {current_id} error;")
-        elif node_type in {"Comando", "Argumento", "Terminal"}:
-            lines.append(f"    class {current_id} command;")
-
-        for child in node.get("hijos", []):
-            add_node(current_id, child)
-
-    for child in ast.get("hijos", []):
-        add_node("AST0", child)
-
-    if len(lines) == 3:
-        lines.append('    AST0note["Sin sentencias reconocidas"]')
-        lines.append("    AST0 --> AST0note")
-
-    return "\n".join(lines)
-
-
-def analizar_sintaxis(tokens: list[dict[str, Any]]) -> dict[str, Any]:
-    errores: list[dict[str, Any]] = []
-    sentencias: list[dict[str, Any]] = []
-    ast_items: list[tuple[int, int, dict[str, Any]]] = []
-    index = 0
-
-    def error(mensaje: str, token: dict[str, Any] | None = None) -> None:
-        linea = token.get("linea", 1) if token else (tokens[-1]["linea"] if tokens else 1)
-        columna = token.get("columna", 1) if token else 1
-        errores.append({"mensaje": mensaje, "linea": linea, "columna": columna})
-        ast_items.append((linea, columna, {
-            "tipo": "Error sintáctico",
-            "mensaje": mensaje,
-            "linea": linea,
-            "columna": columna,
-            "hijos": [],
-        }))
-
-    def recuperar() -> None:
-        nonlocal index
-        while index < len(tokens) and tokens[index]["tipo"] != "PUNTO_Y_COMA":
-            index += 1
-        if index < len(tokens):
-            index += 1
-
-    while index < len(tokens):
-        command_token = tokens[index]
-
-        if command_token["tipo"] != "COMANDO":
-            error("Se esperaba un comando al inicio de la instrucción.", command_token)
-            recuperar()
-            continue
-
-        command = command_token["lexema"]
-        expected_type = ESPERADOS.get(command)
-        index += 1
-
-        if expected_type is None:
-            error(f"Comando no reconocido por la gramática: {command}.", command_token)
-            recuperar()
-            continue
-
-        if index >= len(tokens):
-            error(f"Falta un argumento de tipo {expected_type} para {command}.", command_token)
-            break
-
-        value_token = tokens[index]
-        if value_token["tipo"] != expected_type:
-            error(
-                f"{command} requiere un argumento {expected_type}; "
-                f"se encontró {value_token['tipo']}.",
-                value_token,
-            )
-            recuperar()
-            continue
-
-        value = value_token["lexema"]
-        index += 1
-
-        if index >= len(tokens) or tokens[index]["tipo"] != "PUNTO_Y_COMA":
-            error(
-                "Falta el punto y coma ';' al final de la instrucción.",
-                tokens[index] if index < len(tokens) else value_token,
-            )
-            recuperar()
-            continue
-
-        semicolon_token = tokens[index]
-        index += 1
-
-        statement = {
-            "comando": command,
-            "valor": value,
-            "linea": command_token["linea"],
-            "columna": command_token["columna"],
-        }
-        sentencias.append(statement)
-
-        ast_items.append((command_token["linea"], command_token["columna"], {
-            "tipo": "Sentencia",
-            "linea": command_token["linea"],
-            "columna": command_token["columna"],
-            "hijos": [
-                {"tipo": "Comando", "valor": command, "hijos": []},
-                {"tipo": "Argumento", "valor": value, "hijos": []},
-                {"tipo": "Terminal", "valor": semicolon_token["lexema"], "hijos": []},
-            ],
-        }))
-
-    ast_items.sort(key=lambda item: (item[0], item[1]))
-    ast = {"tipo": "Programa", "hijos": [node for _, _, node in ast_items]}
-
-    return {
-        "errores": errores,
-        "sentencias": sentencias,
-        "gramatica": [
-            {"nombre": name, "produccion": production}
-            for name, production in GRAMATICA
-        ],
-        "ast": ast,
-        "ast_diagrama": generar_diagrama_ast(ast),
-    }
-
-
-def validar_semantica(sentencias: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    errores: list[dict[str, Any]] = []
-    turnos_validos = {"MANANA", "MAÑANA", "TARDE", "NOCHE"}
-
-    for sentencia in sentencias:
-        command = sentencia["comando"]
-        value = sentencia["valor"]
-        error_message = None
-
-        if command == "INICIAR_TURNO" and value.upper() not in turnos_validos:
-            error_message = "El turno debe ser MANANA, MAÑANA, TARDE o NOCHE."
-        elif command in {"REGISTRAR", "REPORTAR_MERMA"}:
-            try:
-                number = float(value)
-                if number < 0:
-                    error_message = "El valor numérico no puede ser negativo."
-            except ValueError:
-                error_message = "El valor debe ser numérico."
-
-        if error_message:
-            errores.append({
-                "mensaje": error_message,
-                "linea": sentencia["linea"],
-                "columna": sentencia.get("columna", 1),
-                "comando": command,
-                "valor": value,
-            })
-
-    return errores
+def validar_semantica(sentencias):
+    from .semantic import analizar_semantica
+    return analizar_semantica({"type":"Program","body":sentencias})["errores"]
